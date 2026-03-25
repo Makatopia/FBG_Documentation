@@ -1,173 +1,48 @@
----
-icon: lucide/rocket
----
+# Figure Blockout Generator
 
-# Get started
+Figure Blockout Generator (FBG) is a Blender add-on that procedurally generates poseable human blockout figures from proportion-based rules, directly inside Blender as native mesh objects.
 
-For full documentation visit [zensical.org](https://zensical.org/docs/).
+The proportions follow the cranial-unit method associated with Robert Beverly Hale, where the skull measurement serves as the base unit for defining the entire figure. You choose a height, a gender, and a proportion type — and FBG builds a complete blockout that you can then reshape, pose, animate, and bake into a standard Blender rig.
 
-## Commands
+<!-- TODO: hero image — posed figure with landmarks visible, showing what FBG produces -->
+<!-- ![FBG overview](assets/images/hero-overview.avif) -->
 
-* [`zensical new`][new] - Create a new project
-* [`zensical serve`][serve] - Start local web server
-* [`zensical build`][build] - Build your site
+## Why FBG exists
 
-  [new]: https://zensical.org/docs/usage/new/
-  [serve]: https://zensical.org/docs/usage/preview/
-  [build]: https://zensical.org/docs/usage/build/
+The initial blocking phase of a figure — whether for sculpting, concept work, or animation prototyping — is deceptively hard to get right. If the proportions are off early, everything built on top inherits those problems, and the further you go the harder they are to fix.
 
-## Examples
+FBG was built to solve that. Instead of eyeballing proportions, you start from a figure whose proportions are defined by a proven method and fully adjustable to your needs. The result is a blockout you can trust as a starting point — not an anatomy reference, but a solid, proportioned foundation to build on.
 
-### Admonitions
+## What you can do with it
 
-> Go to [documentation](https://zensical.org/docs/authoring/admonitions/)
+**Generate a figure** with a single button press. You select a preset, and FBG procedurally builds the entire figure as normal Blender mesh objects. From there, you can adjust the height, gender, proportion type, and body build — the figure regenerates to reflect your changes. You can also choose the underlying geometry type (UV Sphere, Quad Sphere, or Cube) and control the resolution to suit your workflow.
 
-!!! note
+<!-- TODO: side-by-side — male/female or realistic/idealized comparison -->
+<!-- ![Figure generation](assets/images/generate-comparison.avif) -->
 
-    This is a **note** admonition. Use it to provide helpful information.
+**Shape the proportions** to match your target character. Structure controls adjust limb ratios, shoulder width, hip width, and other body build parameters. Volume controls adjust the visual mass of each body area — how full or lean the neck, arms, torso, and legs appear.
 
-!!! warning
+**Visualize with landmarks.** FBG can generate anatomical landmark lines on the blockout, marking key reference points across the body. Static landmarks show fixed reference points; Pose landmarks move with the figure as you pose it, so you can check where those points end up in any given pose.
 
-    This is a **warning** admonition. Be careful!
+<!-- TODO: landmarks image — figure in contrapposto with pose landmarks visible -->
+<!-- ![Landmarks](assets/images/landmarks-example.avif) -->
 
-### Details
+**Pose the figure** through focused body-section controls in the UI. Rather than grabbing bones in the viewport, you work with properties that map to specific anatomical motions — arm abduction, spine bend, foot roll, finger curl, and many others. This is an unconventional approach, but it keeps posing predictable and approachable, especially for users who are not experienced riggers.
 
-> Go to [documentation](https://zensical.org/docs/authoring/admonitions/#collapsible-blocks)
+<!-- TODO: posing UI screenshot or posed figure example -->
+<!-- ![Posing](assets/images/posing-example.avif) -->
 
-??? info "Click to expand for more info"
+**Animate with Pose Combos** — an original system that bundles multiple pose properties into a single controllable unit. Define start and end values for any group of motions, then drive them all with one slider. Layer multiple combos, crossfade between them, shape their easing — and keyframe everything through Blender's standard animation workflow.
 
-    This content is hidden until you click to expand it.
-    Great for FAQs or long explanations.
+**Bake to a clean armature** when you need the motion on a real rig. FBG generates a proportion-aware Blender armature that matches your figure's build and bakes the animation into a standard Action — no constraints, no drivers, no Python dependencies. The result is ready for character binding or export.
 
-## Code Blocks
+## How these docs are organized
 
-> Go to [documentation](https://zensical.org/docs/authoring/code-blocks/)
-
-``` python hl_lines="2" title="Code blocks"
-def greet(name):
-    print(f"Hello, {name}!") # (1)!
-
-greet("Python")
-```
-
-1.  > Go to [documentation](https://zensical.org/docs/authoring/code-blocks/#code-annotations)
-
-    Code annotations allow to attach notes to lines of code.
-
-Code can also be highlighted inline: `#!python print("Hello, Python!")`.
-
-## Content tabs
-
-> Go to [documentation](https://zensical.org/docs/authoring/content-tabs/)
-
-=== "Python"
-
-    ``` python
-    print("Hello from Python!")
-    ```
-
-=== "Rust"
-
-    ``` rs
-    println!("Hello from Rust!");
-    ```
-
-## Diagrams
-
-> Go to [documentation](https://zensical.org/docs/authoring/diagrams/)
-
-``` mermaid
-graph LR
-  A[Start] --> B{Error?};
-  B -->|Yes| C[Hmm...];
-  C --> D[Debug];
-  D --> B;
-  B ---->|No| E[Yay!];
-```
-
-## Footnotes
-
-> Go to [documentation](https://zensical.org/docs/authoring/footnotes/)
-
-Here's a sentence with a footnote.[^1]
-
-Hover it, to see a tooltip.
-
-[^1]: This is the footnote.
-
-
-## Formatting
-
-> Go to [documentation](https://zensical.org/docs/authoring/formatting/)
-
-- ==This was marked (highlight)==
-- ^^This was inserted (underline)^^
-- ~~This was deleted (strikethrough)~~
-- H~2~O
-- A^T^A
-- ++ctrl+alt+del++
-
-## Icons, Emojis
-
-> Go to [documentation](https://zensical.org/docs/authoring/icons-emojis/)
-
-* :sparkles: `:sparkles:`
-* :rocket: `:rocket:`
-* :tada: `:tada:`
-* :memo: `:memo:`
-* :eyes: `:eyes:`
-
-## Maths
-
-> Go to [documentation](https://zensical.org/docs/authoring/math/)
-
-$$
-\cos x=\sum_{k=0}^{\infty}\frac{(-1)^k}{(2k)!}x^{2k}
-$$
-
-!!! warning "Needs configuration"
-    Note that MathJax is included via a `script` tag on this page and is not
-    configured in the generated default configuration to avoid including it
-    in a pages that do not need it. See the documentation for details on how
-    to configure it on all your pages if they are more Maths-heavy than these
-    simple starter pages.
-
-<script id="MathJax-script" src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
-<script>
-  window.MathJax = {
-    tex: {
-      inlineMath: [["\\(", "\\)"]],
-      displayMath: [["\\[", "\\]"]],
-      processEscapes: true,
-      processEnvironments: true
-    },
-    options: {
-      ignoreHtmlClass: ".*|",
-      processHtmlClass: "arithmatex"
-    }
-  };
-
-  document$.subscribe(() => {
-    MathJax.startup.output.clearCache()
-    MathJax.typesetClear()
-    MathJax.texReset()
-    MathJax.typesetPromise()
-  })
-</script>
-
-## Task Lists
-
-> Go to [documentation](https://zensical.org/docs/authoring/lists/#using-task-lists)
-
-* [x] Install Zensical
-* [x] Configure `zensical.toml`
-* [x] Write amazing documentation
-* [ ] Deploy anywhere
-
-## Tooltips
-
-> Go to [documentation](https://zensical.org/docs/authoring/tooltips/)
-
-[Hover me][example]
-
-  [example]: https://example.com "I'm a tooltip!"
+| Section | What it covers |
+|---|---|
+| [Getting Started](getting-started/index.md) | Installation and creating your first blockout |
+| [Proportions](proportions/index.md) | Structure and Volume controls for shaping the figure |
+| [Posing](posing/index.md) | Per-section pose controls for the entire body |
+| [Pose Combos](pose-combos/index.md) | Bundling, layering, and animating multi-property pose units |
+| [Animation](animation/index.md) | Keyframing, playback, and animation workflow |
+| [Baking](baking/index.md) | Generating armatures and preparing blockouts for rendering |
