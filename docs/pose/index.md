@@ -2,7 +2,9 @@
 
 FBG's posing workflow is primarily **property-driven** rather than based on a traditional viewport controller rig. Instead of grabbing bones and rotating controllers in the 3D View, you pose the figure through sliders and values in the FBG panel.
 
-That can feel unusual at first if you are used to conventional rigging workflows. The tradeoff is that FBG can build higher-level behavior into its pose properties, so a single control can coordinate several related adjustments under the hood. The goal is not to mimic a standard controller rig, but to provide a posing workflow built specifically for blockout figures.
+That can feel unusual at first if you are used to conventional rigging workflows. The tradeoff is that FBG can build higher-level behavior into its pose properties, so a single control can coordinate several related adjustments under the hood.
+
+A good example is torso flexion. When you bend the torso forward, the motion is not applied evenly across the spine. It is distributed across four vertebral regions using anatomically researched weights - the lumbar spine carries most of the flexion, the thoracic spine contributes less. One slider, but the spine bends the way a real spine bends. The same principle applies throughout FBG's pose system: properties are designed to produce anatomically informed results, not mechanical ones.
 
 This page is an overview of the Pose section. Each body region has its own page with the detailed controls.
 
@@ -14,7 +16,7 @@ This page is an overview of the Pose section. Each body region has its own page 
 The Pose section is organized into body regions that mirror the UI layout:
 
 - [Root](root.md)
-- [Arms & Shoulders](arms.md)
+- [Arms & Shoulders](shoulders-arms.md)
 - [Hands](hands.md)
 - [Torso & Head](torso-head.md)
 - [Pelvis](pelvis.md)

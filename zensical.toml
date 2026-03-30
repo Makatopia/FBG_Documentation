@@ -14,7 +14,7 @@ nav = [
   { "Pose" = [
     "pose/index.md",
     "pose/root.md",
-    "pose/arms.md",
+    "pose/shoulders-arms.md",
     "pose/hands.md",
     "pose/torso-head.md",
     "pose/pelvis.md",
