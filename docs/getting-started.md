@@ -20,7 +20,7 @@ The panel is organized into four main sections, from top to bottom:
 
 **Pose** - controls how the figure is posed. Each body region has its own sub-section with properties that drive specific anatomical motions. Posing is fully UI-driven - you work with sliders and values rather than grabbing controllers in the viewport.
 
-**Pose Combos** - bundles multiple pose properties into controllable units. This section appears once you start creating combos, and is covered in detail in its own [documentation](pose-combos/index.md) page.
+**Pose Combos** - bundles multiple pose properties into controllable units. This section appears once you start creating combos, and is covered in detail in its own [documentation](pose-combos.md) page.
 
 **Display** - controls how the blockout looks in the viewport. This includes the geometry type and resolution, body part visibility toggles, landmark overlays, and the info overlay.
 
@@ -35,4 +35,4 @@ FBG also creates a controller object that holds all the properties and animation
 
 ## Next steps
 
-Now that you have a blockout in your scene, read [How FBG Works](how-fbg-works.md) to understand the active/finalized workflow and how changes affect the figure - or jump straight into [Proportions](proportions/index.md) to start shaping the figure.
+Now that you have a blockout in your scene, read [How FBG Works](how-fbg-works.md) to understand the active/finalized workflow and how changes affect the figure - or jump straight into [Proportions](proportions.md) to start shaping the figure.

@@ -58,12 +58,12 @@ Changing the height scales the cranial unit proportionally - a taller figure has
 
 ## Structure
 
-Structure defines the figure's skeletal proportions - the build itself, limb lengths, shoulder and hip widths, and so forth. These are not cosmetic changes. Structure affects how the figure moves when posed and determines the armature that [Bake to Rig](../baking/bake-to-rig.md) generates.
+Structure defines the figure's skeletal proportions - the build itself, limb lengths, shoulder and hip widths, and so forth. These are not cosmetic changes. Structure affects how the figure moves when posed and determines the armature that [Bake to Rig](baking.md) generates.
 
 <!-- TODO: screenshot - the Structure sub-foldout expanded -->
 <!-- ![Structure controls](assets/images/proportions-structure.avif) -->
 
-The sub-foldout header includes an [update mode selector](../how-fbg-works.md#update-modes) and a reset button that returns all values to their defaults.
+The sub-foldout header includes an [update mode selector](how-fbg-works.md#update-modes) and a reset button that returns all values to their defaults.
 
 ### Upper body
 
@@ -110,4 +110,4 @@ The sub-foldout header includes a reset button that returns all values to their 
 
 ---
 
-With the figure's build defined, head to [Pose](../pose/index.md) to start shaping the figure's pose.
+With the figure's build defined, head to [Pose](pose/index.md) to start shaping the figure's pose.

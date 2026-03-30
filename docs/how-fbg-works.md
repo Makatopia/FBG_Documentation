@@ -13,7 +13,7 @@ At the top of the active panel, next to the blockout name and the Finalize butto
 <!-- TODO: screenshot - the active header bar with the 4 icon buttons -->
 <!-- ![Active header controls](assets/images/how-fbg-works-active-header.avif) -->
 
-- **Animation Playback** - enables animation evaluation for the active blockout, so pose properties update with frame changes during scrubbing and playback. Covered in more detail on the [Animation](animation/index.md) page.
+- **Animation Playback** - enables animation evaluation for the active blockout, so pose properties update with frame changes during scrubbing and playback. Covered in more detail on the [Animation](animation.md) page.
 - **Controller Visibility** - makes the controller object visible and selects it. This is mainly useful when animating, because Blender's Timeline or Graph Editor show keyframes for the selected object - and the controller is where FBG stores the animation Action per blockout.
 - **Regenerate** - forces a full regeneration of the active blockout from the current settings. Useful as a recovery option if something gets into an unexpected state.
 - **Delete** - removes the active blockout and cleans up its associated data blocks.

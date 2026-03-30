@@ -10,7 +10,7 @@ nav = [
   { "Installation" = "installation.md" },
   { "Getting Started" = "getting-started.md" },
   { "How FBG Works" = "how-fbg-works.md" },
-  { "Proportions" = "proportions/index.md" },
+  { "Proportions" = "proportions.md" },
   { "Pose" = [
     "pose/index.md",
     "pose/root.md",
@@ -21,17 +21,9 @@ nav = [
     "pose/legs.md",
     "pose/feet.md",
   ]},
-  { "Pose Combos" = [
-    "pose-combos/index.md",
-  ]},
-  { "Animation" = [
-    "animation/index.md",
-  ]},
-  { "Baking" = [
-    "baking/index.md",
-    "baking/bake-to-rig.md",
-    "baking/bake-for-render.md",
-  ]},
+  { "Pose Combos" = "pose-combos.md" },
+  { "Animation" = "animation.md" },
+  { "Baking" = "baking.md" },
 ]
 
 [project.theme]
@@ -44,12 +36,13 @@ features = [
     "content.footnote.tooltips",
     "content.tabs.link",
     "content.tooltips",
+    "navigation.expand",
     "navigation.footer",
     "navigation.indexes",
     "navigation.instant",
     "navigation.instant.prefetch",
     "navigation.path",
-    "navigation.sections",
+    # "navigation.sections",
     "navigation.top",
     "navigation.tracking",
     "search.highlight",

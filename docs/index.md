@@ -43,8 +43,8 @@ FBG was built to solve that. Instead of eyeballing proportions, you start from a
 | [Installation](installation.md) | How to install the add-on in Blender |
 | [Getting Started](getting-started.md) | Generating your first blockout and navigating the UI |
 | [How FBG Works](how-fbg-works.md) | Active/finalized workflow, regeneration, and core concepts |
-| [Proportions](proportions/index.md) | Structure and Volume controls for shaping the figure |
+| [Proportions](proportions.md) | Structure and Volume controls for shaping the figure |
 | [Pose](pose/index.md) | Per-section pose controls for the entire body |
-| [Pose Combos](pose-combos/index.md) | Bundling, layering, and animating multi-property pose units |
-| [Animation](animation/index.md) | Keyframing, playback, and animation workflow |
-| [Baking](baking/index.md) | Generating armatures and preparing blockouts for rendering |
+| [Pose Combos](pose-combos.md) | Bundling, layering, and animating multi-property pose units |
+| [Animation](animation.md) | Keyframing, playback, and animation workflow |
+| [Baking](baking.md) | Generating armatures and preparing blockouts for rendering |
