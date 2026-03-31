@@ -46,24 +46,23 @@ The active blockout uses the `Animation Playback` toggle in the main FBG panel h
 
 Each finalized blockout has its own `Animation Playback` toggle. Only blockouts with it enabled are updated during playback.
 
-This is useful in larger scenes with multiple finalized figures. You can keep them all in the file and only pay the runtime cost for the ones currently being animated.
+This is useful in scenes with multiple finalized figures. You can keep them all in the file and only pay the runtime cost for the ones currently being animated.
 
 ## Controller object
 
-Every blockout -- active and finalized -- has a controller object named `{BlockoutCollectionName}_CTRL`. This is a hidden Empty that serves as the per-blockout animation host.
+Every blockout has a controller object named `{BlockoutCollectionName}_CTRL`. This is a hidden Empty that serves as the per-blockout animation host.
 
 It holds:
 
 - the blockout's `fbg_settings`, including all pose and combo property values
 - the `Action` and F-curves for all animated FBG properties
-- a root-following transform for animation editing convenience
 
 The controller tracks the effective root transform -- root position, root rotation, and root pivot offset. Selecting it gives you a clean place to animate and inspect F-curves in the Graph Editor, with the object positioned at the blockout's root.
 
 Use the controller visibility button in the FBG panel to reveal and select it.
 
-<!-- TODO: screenshot - controller selected, Graph Editor showing blockout F-curves -->
-<!-- ![Controller in Graph Editor](assets/images/animation-controller-graph-editor.avif) -->
+<!-- screenshot - controller selected, Graph Editor showing blockout F-curves -->
+![Controller in Graph Editor](assets/images/animation-controller-graph-editor.avif){width=75%}
 
 ## Realtime preview
 
