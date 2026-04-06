@@ -99,20 +99,27 @@ Deform Updates are also the biggest single performance factor during playback. S
 
 FBG animation runs through Python rather than Blender's native evaluation path. Playback is usable and practical for iteration, but it is slower than a native Blender armature.
 
-The biggest cost factors are:
+### What affects performance: 
 
-- whether `Deform Updates` is enabled -- modifying vertex positions on multiple objects every frame is by far the largest single factor
-- how many blockouts have `Animation Playback` enabled
-- how many combos are enabled and how many properties they control
+- Number of animated blockouts: performance scales with count. One or two blockouts run realatively fine, but the more you add, the slower it gets.
+- Mesh [Deform Updates](#deform-updates): this is the single biggest performance factor. Deform updates modify vertex positions on multiple mesh objects every frame. Especially on dense meshes or with multiple animated blockouts, this can have a noticeable impact. If playback feels slow, disabling Deform Updates is the first thing to try.
+- Scene complexity: FBG runs faster on lighter scenes. Heavy scenes with many objects, modifiers, or complex node setups add overhead that compounds with FBG's per-frame updates.
+- Viewport UI: additional Blender UI panels add viewport redraw overhead. For maximum FPS, keep only the views needed for your work.
+- Landmarks and Info Overlay: if visible, these include many text labels and guide markers that are heavier for viewport updates.
 
-There is also a smaller distinction worth knowing: the active blockout may play back slightly slower than finalized blockouts in the same scene. This is not FBG evaluation overhead -- the pose pipeline runs the same way in both cases. The gap comes from Blender redrawing the FBG sidebar panel every frame during playback. Pressing `N` to hide the sidebar, or `Ctrl+Space` to maximize the 3D viewport, closes the gap. This is standard Blender viewport overhead and outside FBG's control.
+### Combo Performance 
 
-To improve playback performance:
+- More combos in the stack = more per-frame work = slower playback.
+- More properties inside each combo = more per-frame work = slower playback.
+- Disabled combos are cheaper than enabled combos, but not free.
+This path has been profiled and optimized, but combo-heavy setups will still cost more per frame.
 
-1. Disable `Deform Updates` unless you specifically need the visual bend and twist behavior.
-2. Disable `Animation Playback` on blockouts you are not actively working with.
-3. Keep the number of enabled combos reasonable during blocking and preview.
-4. Use [Bake To Rig](baking.md) for native Blender playback speed once the animation is final.
+### Active and Finalized playback speed: 
+
+You may notice that playback is slightly faster on finalized than on the active blockout. This has been investigated -- the difference is not in FBG's evaluation code (the pose pipeline runs the same way in both cases). The gap comes from Blender's UI redraw: the active blockout has the FBG properties panel open in the sidebar, and Blender redraws those UI elements every frame during playback. Hiding the sidebar `N` or maximizing the 3D viewport `Ctrl+Space`, closes the gap. It is standard Blender viewport/UI overhead.
+
+!!! tip ""
+    Use [Bake To Rig](baking.md) for native Blender playback speed once the animation is final.
 
 ## Rendering and baking
 

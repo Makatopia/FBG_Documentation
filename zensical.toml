@@ -11,6 +11,7 @@ nav = [
   { "Getting Started" = "getting-started.md" },
   { "How FBG Works" = "how-fbg-works.md" },
   { "Proportions" = "proportions.md" },
+  { "Display" = "display.md" },
   { "Pose" = [
     "pose/index.md",
     "pose/root.md",
@@ -25,6 +26,8 @@ nav = [
   { "Animation" = "animation.md" },
   { "Baking" = "baking.md" },
 ]
+
+extra_css = ["assets/stylesheets/extra.css"]
 
 [project.theme]
 language = "en"

@@ -1,112 +1,124 @@
 # Proportions
 
-Proportions is the first thing you work with after generating a blockout. It defines the figure's body build - everything from overall height and proportion type down to the limb lengths and segment ratios - before you start posing or animating.
+Proportions define the generated figure before you start posing or animating it. Proportion changes regenerate the blockout to match the updated definition.
 
-FBG's proportion system is built on the **cranial-unit method**, an approach to figure proportion associated with Robert Beverly Hale. The idea is simple: take the cranium - the upper, spherical part of the skull - and use it as a measuring unit for the entire body. A full figure can be measured in a specific number of these cranial units (CU), and each body segment occupies a defined share of that total. When you change one proportion, every related segment adjusts in step, because they're all expressed in the same unit. This is what keeps the figure coherent - proportions don't drift independently the way they would with freeform scaling.
+## The Cranial Unit
+
+FBG uses a proportional system where every body dimension is tied to a shared unit called the **Cranial Unit (CU)**. One CU is the distance from the top of the skull to the base of the nose -- roughly the height of the cranial mass, not the full head.
+
+The system is strongly inspired by Robert Beverly Hale's cranial-unit canon, but its specific proportions, gender differences, and structural relationships reflect FBG's own interpretation of that method, informed by additional anatomical and proportional reference.
+
+Because every dimension is expressed in CU, changing height rescales the figure uniformly within the current proportion setup. Body regions do not drift out of proportion the way they would with freeform scaling. A taller figure has a larger CU, so everything scales up together.
 
 <!-- TODO: screenshot - the Proportions section in the UI, expanded -->
 <!-- ![Proportions panel](assets/images/proportions-panel.avif) -->
 
-## At a glance
+## How to think about the controls
 
-**Preset** - picks a starting point (male/female, realistic/idealized, height) that configures the entire figure at once.
+The proportion controls work in five steps:
 
-**Gender** - switches between Male and Female. This reshapes the figure across virtually every body region - skeletal widths, joint angles, limb cross-sections, torso shape, and more.
-
-**Proportion type** - switches between Realistic (11.5 CU) and Idealized (12 CU). Realistic follows average human measurements; Idealized shifts extra length into the legs for a more stylized look.
-
-**Height** - sets total figure height.
-
-**Structure** - the figure's skeletal build: limb lengths, segment ratios, widths. Changes how the figure moves when posed.
-
-**Volume** - visual mass only: how thick or lean each area appears. Does not affect the skeleton, posing, or rig generation.
+1. **Preset** gives you a starting figure.
+2. **Gender** and **Proportion Type** define the figure's overall proportions.
+3. **Height** sets the figure's total scale.
+4. **Structure** changes the figure's body layout -- things like width relationships, limb lengths, and segment distribution.
+5. **Volume** changes the visual mass of each region -- how thick or lean it appears -- without changing the figure's skeletal layout.
 
 ---
 
 ## Preset
 
-The preset dropdown dictates a starting point for the blockout. Four presets are available:
+The preset dropdown sets a starting point for the blockout. Four presets are available:
 
-- **Female Realistic** (1.65m) - 11.5 CU proportions
-- **Female Idealized** (1.80m) - 12 CU proportions
-- **Male Realistic** (1.80m) - 11.5 CU proportions
-- **Male Idealized** (1.95m) - 12 CU proportions
+- **Female Realistic** (1.65m) -- 11.5 CU proportions
+- **Female Idealized** (1.80m) -- 12 CU proportions
+- **Male Realistic** (1.80m) -- 11.5 CU proportions
+- **Male Idealized** (1.95m) -- 12 CU proportions
 
-Each preset configures the full proportion set, so you get a complete, proportionally sound figure immediately. From there you can refine any value - gender, proportion type, height, Structure, and Volume - to shape the figure further. Once you adjust anything manually, the preset switches to **Custom** to reflect that your configuration no longer matches a built-in preset.
+Each preset defines a starting figure by setting the initial height, gender, and proportion type. From there, you can refine the blockout with the other proportion controls.
+
+Once you adjust the setup manually, the preset switches to **Custom** to reflect that the figure no longer matches one of the built-in configurations.
 
 ## Gender
 
-Switches between **Male** and **Female**. This is not a surface-level change - it reshapes the entire figure. Male and female proportions in FBG differ across virtually every body region: skeletal widths (pelvis, shoulders, ribcage), joint angles (the leg's bicondylar angle or the arm's carrying angle), limb cross-sections, torso shape, waist definition, and more. These differences have been individually tuned so that even at the blockout level, the figure reads clearly as male or female.
+Switches between **Male** and **Female**. This is not a surface-level visual swap. Gender selection changes the figure's internal base configuration across the whole body -- pelvis and shoulder widths, ribcage shape, limb cross-sections, joint-angle defaults, and other proportion relationships. These base differences are built into the generated figure.
 
 ## Proportion type
 
 Switches between **Realistic (11.5 CU)** and **Idealized (12 CU)**.
 
-Both modes use the cranial-unit method, but distribute the units differently across the body:
+Both modes use the same system. The figure is the same height either way -- the difference is in how that height is distributed. The main change is in the legs: in Idealized mode, the extra half unit is distributed through the leg region, making them longer relative to the torso. Other proportions like shoulder width, ribcage shape, and limb lengths are subtly adjusted to complement the change. The specifics vary between male and female.
 
-- **Realistic (11.5 CU)** - proportions closer to average human measurements.
-- **Idealized (12 CU)** - the extra half unit goes into leg length, which reduces the head and torso relative to the legs. This produces the kind of elongated proportions common in figure drawing and character design.
-
-!!! info "Idealized Proportions"
-    The Idealized mode is FBG's own extension of the cranial-unit system - it expands upon the standard method by offering a second set of proportions designed for a stylized or heroic look.
+The 11.5 CU realistic mode is closer to average human proportions. The 12 CU idealized mode is FBG's own extension of the cranial-unit framework -- not a neutral standard, but a deliberate idealization that produces a more elongated figure.
 
 ## Height
 
-Sets the figure's total height. The property uses Blender's unit system, so you can type values in any supported unit (e.g., `6ft`) and Blender will convert automatically.
+Sets the figure's total height.
 
-Changing the height scales the cranial unit proportionally - a taller figure has a larger base unit, so the entire body scales up uniformly. Height alone does not change the figure's build. To control how that height is distributed across the body - longer legs relative to the torso, different limb ratios - use the Structure controls.
+Changing the height scales the cranial unit proportionally -- a taller figure has a larger CU, so the entire body scales up uniformly. Height alone does not change the figure's build. To control how that height is distributed across the body, use the Structure controls.
+
+!!! tip "Blender unit input"
+
+    The `Height` property uses Blender's unit system, so you can type values in any supported unit (for example, `6ft`) and Blender will convert automatically.
+
 
 ## Structure
 
-Structure defines the figure's skeletal proportions - the build itself, limb lengths, shoulder and hip widths, and so forth. These are not cosmetic changes. Structure affects how the figure moves when posed and determines the armature that [Bake to Rig](baking.md) generates.
+Structure defines the figure's build. These are not cosmetic changes. Structure changes the underlying body layout used for generation, posing, and downstream baking, so it affects both the figure's proportions and how they behave in motion.
+
+For example, changing `Leg Segment Ratio` changes how the same squat pose resolves, producing different joint positions and a different motion arc.
 
 <!-- TODO: screenshot - the Structure sub-foldout expanded -->
 <!-- ![Structure controls](assets/images/proportions-structure.avif) -->
 
 The sub-foldout header includes an [update mode selector](how-fbg-works.md#update-modes) and a reset button that returns all values to their defaults.
 
-### Upper body
+All Structure sliders default to 0 (neutral). The sliders use a normal working range of -1 to 1, though some properties also accept typed values beyond that range. 
 
-`Shoulder Width` and `Hip Width` control the breadth of the shoulder girdle and the pelvis. These set the figure's overall frame - narrow or wide - and influence how the arms and legs sit relative to the torso.
+The sliders appear in the panel in this order:
 
-### Arms
-
-`Arm Length` adjusts overall arm length. The scaling is not uniform across the limb - the forearm responds more than the upper arm, following how real human proportions naturally vary (distal segments like the forearm and hand show more variation than proximal ones like the humerus). `Arm Segment Ratio` goes a step further and lets you explicitly redistribute length between the upper arm and forearm while keeping total arm length the same. Positive values shift length toward the forearm, negative toward the upper arm.
-
-`Hand Length` and `Hand Width` size the hands. Like arm length, hand scaling is weighted - fingers change more than the palm.
-
-### Legs
-
-`Leg/Torso Ratio` shifts proportion between the torso and legs while keeping total figure height the same. Positive values lengthen the legs and shorten the torso; negative values do the opposite. `Leg Segment Ratio` redistributes length between the thigh and shin in the same way - positive values lengthen the shin, negative values lengthen the thigh.
-
-`Foot Length` and `Foot Width` size the feet. Foot scaling follows the same distal-weighting principle - the toe region changes more than the heel.
+| Control | Effect |
+| --- | --- |
+| `Shoulder Width` | Breadth of the shoulder girdle. Controls clavicle length, which sets the biacromial frame. |
+| `Arm Length` | Overall arm length. The scaling follows an allometric gradient: the forearm responds more than the upper arm, matching how real human proportions naturally vary. |
+| `Arm Segment Ratio` | Redistributes length between the upper arm and forearm while keeping total arm length the same. Positive values shift length toward the forearm, negative toward the upper arm. |
+| `Hand Length` | Sizes the hands. Like arm length, scaling is weighted toward the fingers over the palm. |
+| `Hand Width` | Widens or narrows the hands. |
+| `Hip Width` | Breadth of the pelvis. Sets the bi-iliac frame. |
+| `Leg/Torso Ratio` | Shifts proportion between the torso and legs while keeping total figure height the same. Positive values lengthen the legs and shorten the torso. |
+| `Leg Segment Ratio` | Redistributes length between the thigh and shin. Positive values lengthen the shin, negative values lengthen the thigh. |
+| `Foot Length` | Sizes the feet. Scaling is weighted toward the toes over the heel. |
+| `Foot Width` | Widens or narrows the feet. |
 
 !!! info "Allometric scaling"
 
-    Length properties like `Arm Length`, `Hand Length`, and `Foot Length` don't scale every segment equally. They use allometric weighting - distal segments (forearm, fingers, toes) naturally vary more than proximal ones (upper arm, palm, heel), and FBG's scaling reflects that. The result is that adjustments feel proportionally natural rather than mechanical.
+    Length properties like `Arm Length`, `Hand Length`, and `Foot Length` don't scale every segment equally. They use allometric weighting -- distal segments (forearm, fingers, toes) naturally vary more than proximal ones (upper arm, palm, heel). The difference is small, but it helps adjustments feel proportionally natural rather than mechanical.
 
-    The ratio sliders (`Arm Segment Ratio`, `Leg Segment Ratio`, `Leg/Torso Ratio`) redistribute length between two segments without changing the total, and are clamped to anatomically plausible bounds.
+    The ratio sliders (`Arm Segment Ratio`, `Leg Segment Ratio`, `Leg/Torso Ratio`) redistribute length between two segments without changing the total.
 
 ## Volume
 
-Volume controls the visual mass of each body region - how thick or lean each area appears. Unlike Structure, Volume is purely visual. It does not change the skeleton, does not affect how the figure moves when posed, and does not influence armature generation. Think of Structure as the build and Volume as the mass on top of it.
+Volume controls the visual mass of each body region -- how thick or lean each area appears. Unlike Structure, Volume does not change the figure's skeletal layout or joint positions. Think of Structure as the build and Volume as the mass on top of it.
 
 <!-- TODO: screenshot - the Volume sub-foldout expanded -->
 <!-- ![Volume controls](assets/images/proportions-volume.avif) -->
 
 The sub-foldout header includes a reset button that returns all values to their defaults.
 
-### Arms
+All Volume sliders default to 0 (neutral). The sliders use a normal working range of -1 to 1, but typed values can go up to 2 or down to -2. 
 
-`Deltoid`, `Upper Arm`, `Forearm`, and `Fingers` - thickness of the shoulder cap and each arm segment down to the fingers.
+The sliders appear in this order:
 
-### Torso
-
-`Neck`, `Ribcage`, and `Waist` - thickness from the neck through the ribcage and waist.
-
-### Legs
-
-`Thigh` and `Calf` - thickness of the upper and lower leg.
+| Control | Effect |
+| --- | --- |
+| `Deltoid` | Shoulder cap thickness. |
+| `Upper Arm` | Biceps/triceps area. |
+| `Forearm` | Forearm mass. |
+| `Fingers` | Finger thickness. |
+| `Neck` | Neck thickness. |
+| `Ribcage` | Thoracic breadth and depth, independent of the shoulder frame. |
+| `Waist` | Waist and abdomen thickness. |
+| `Thigh` | Upper leg mass. |
+| `Calf` | Lower leg mass. |
 
 ---
 

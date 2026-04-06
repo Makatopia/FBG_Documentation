@@ -1,0 +1,52 @@
+/* --- USTAWIENIA DLA OBRAZKOW I WIDEO --- */
+
+.md-content img, .md-content video {
+    border-radius: 10px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+/* --- TRYB CIEMNY (SLATE) --- */
+
+[data-md-color-scheme="slate"] .md-content img,
+[data-md-color-scheme="slate"] .md-content video {
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-md-color-scheme="slate"] {
+    /* Glowne tlo strony */
+    --md-default-bg-color: #1e1e1e;
+    --md-default-bg-color--light: #262626;
+    --md-default-bg-color--lighter: #2d2d2d;
+    --md-default-bg-color--lightest: #353535;
+
+    /* Tekst */
+    --md-default-fg-color: rgba(210, 210, 210, 1);
+    --md-default-fg-color--light: rgba(200, 200, 200, 0.7);
+    --md-default-fg-color--lighter: rgba(200, 200, 200, 0.4);
+    --md-default-fg-color--lightest: rgba(200, 200, 200, 0.15);
+
+    /* Bloki kodu */
+    --md-code-bg-color: #252525;
+}
+
+/* Przyciski Select/Copy w blokach kodu */
+[data-md-color-scheme="slate"] .md-code__button {
+    color: rgba(230, 230, 230, 0.4);
+}
+
+[data-md-color-scheme="slate"] .md-code__button:hover {
+    color: rgba(230, 230, 230, 0.8);
+}
+
+[data-md-color-scheme="slate"] .md-code__nav {
+    background-color: #252525;
+}
+
+/* Shortcut hint w search bar */
+[data-md-color-scheme="slate"] .md-search__button::after {
+    background-color: #353535;
+    color: rgba(230, 230, 230, 0.5);
+    border-color: rgba(255, 255, 255, 0.1);
+}

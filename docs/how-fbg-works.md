@@ -1,106 +1,128 @@
 # How FBG Works
 
-This page covers the core concepts behind FBG's workflow - the blockout lifecycle, what triggers regeneration, and how multiple blockouts coexist in a scene. Understanding these will help you work with the tool more confidently.
+## Generated from scratch
+
+FBG does not import a pre-made model. It generates the figure in-place from code -- proportions are converted into dimensions, those dimensions are fed through a skeleton solver, and the solver output drives the mesh generation. Each generated mesh starts from a simple primitive based on the selected geometry mode, then FBG reshapes it to match the body part. Every time you change a proportion, the figure is regenerated from that pipeline.
+
+
+## The anchor system
+
+FBG does not use a Blender armature. Instead, it computes its own internal skeleton -- a chain of anchors -- from the current proportions and pose values.
+
+The same chain is used for building, posing, and animation playback. Proportions provide the dimensions, pose values provide the pose inputs, and the solver produces the positions and orientations that all downstream operations use.
+
+Because the chain uses actual proportional dimensions, changing proportions also changes the figure's kinematics -- the same pose values produce different joint positions on a differently proportioned figure.
+
+The entire evaluation runs in Python rather than Blender's native C/C++ armature path. This means it is slower than a native armature-based rig. Read more about performance on the [Animation](animation.md#performance) page.
+
+[Bake to Rig](baking.md#bake-to-rig) converts the result into a native armature for full-speed playback.
 
 ## Active and finalized blockouts
 
-A blockout in FBG has two stages: **active** and **finalized**.
+Only one blockout can be active at a time. The active blockout is the current editing target -- the one that responds when you change proportions, pose, or display settings in the panel.
 
-When you generate a blockout, it starts in the **active** stage. This is where you do all your work - adjusting proportions, posing, setting up combos, tweaking display options. The full panel with all four sections is available.
+When you click **Finalize**, the blockout is no longer the active editing target, but it stays in the scene. FBG stores the blockout's state into the collection metadata, which is what allows it to be reactivated later and resume where it left off.
 
-At the top of the active panel, next to the blockout name and the Finalize button, you will find a set of header controls:
+Each finalized blockout is self-contained. Multiple finalized blockouts can coexist in the same scene, each with its own settings, animation state.
 
-<!-- TODO: screenshot - the active header bar with the 4 icon buttons -->
-<!-- ![Active header controls](assets/images/how-fbg-works-active-header.avif) -->
+## Controller object
 
-- **Animation Playback** - enables animation evaluation for the active blockout, so pose properties update with frame changes during scrubbing and playback. Covered in more detail on the [Animation](animation.md) page.
-- **Controller Visibility** - makes the controller object visible and selects it. This is mainly useful when animating, because Blender's Timeline or Graph Editor show keyframes for the selected object - and the controller is where FBG stores the animation Action per blockout.
-- **Regenerate** - forces a full regeneration of the active blockout from the current settings. Useful as a recovery option if something gets into an unexpected state.
-- **Delete** - removes the active blockout and cleans up its associated data blocks.
+Each blockout gets a controller object -- a hidden Empty named with a `_CTRL` suffix, placed inside the blockout's main collection.
 
-Once you are satisfied with the blockout, you click **Finalize**. This locks the blockout in its current state and returns the panel to the initial view. From here you can generate another blockout, or work with your finalized ones through the **Previous Blockouts** list that appears below the Generate button.
+The controller holds the blockout's own copy of all FBG settings and all animation data (keyframes and F-curves). This is what enables each blockout to carry independent settings and animation.
 
-<!-- TODO: screenshot - the finalized state UI showing Previous Blockouts list -->
-<!-- ![Finalized state](assets/images/how-fbg-works-finalized.avif) -->
+!!! tip "Selecting the controller"
+    All FBG property keyframes land on the controller. It is the object to have selected when working with the blockout's animation data in the Timeline, Graph Editor, or Dope Sheet. 
+     
+    Use the **Controller Visibility** toggle (eye icon) in the panel header to quickly reveal and select it.
 
-Each finalized blockout in the list has a set of controls:
+### What happens if the controller is deleted
 
-- **Animation toggle** - enables playback of animated properties on the finalized blockout
-- **Deform updates** - toggles mesh deformation updates during animation (appears when animation is enabled)
-- **Visibility** - shows or hides the blockout collection in the viewport
-- **Reactivate** - returns the blockout to the active stage so you can continue editing it
-- **Delete** - removes the blockout and cleans up its associated data blocks (the recommended way to delete, since it prevents unused data from accumulating in the scene)
+If the controller is deleted while the blockout is **active**, the settings, combos, and animation data stored on that controller are lost. Regenerating the blockout creates a new controller and the blockout falls back to the current scene-level state rather than the deleted controller data.
 
-The bake operations - **Bake to Rig** and **Bake for Render** - are also located in this finalized view, since they operate on finalized blockouts.
+If the controller is deleted on a **finalized** blockout, reactivation can still restore settings and combos from the collection metadata. Animation keyframes and F-curves are only stored on the controller and cannot be recovered.
 
-You can have multiple finalized blockouts in the same scene, each with its own independent settings and animation. Only one blockout can be active at a time.
+!!! warning "Keep the controller intact"
+    While FBG can recover from a missing controller in some cases, unexpected behavior can occur -- such as the blockout reverting to default settings. If you animated the figure then upon removing the controller object, all of your animation data for this blockout will be lost.
 
-## Regeneration
+## Update types
 
-Certain changes cause FBG to regenerate the blockout meshes from scratch. This happens when you change:
+When you change a property, the blockout responds in one of three ways:
 
-- **Proportions** - gender, proportion type, height, structure, or volume controls
-- **Display settings** - geometry type, resolution, or body part visibility
+- **Rebuild** -- the affected objects are removed and regenerated from scratch. Triggered by most proportion or display changes.
+- **Transform update** -- the existing objects are repositioned and rotated without touching the mesh data. Triggered by most pose changes.
+- **Mesh deformation** -- the vertices of specific objects are recalculated to follow a bend or twist. Triggered by some pose changes.
 
-During regeneration, the existing mesh objects are replaced with newly built ones. **Pose changes do not trigger regeneration** - they transform the existing objects in place, which is why posing is fast and responsive.
+### What rebuilds the blockout
 
-!!! warning "Regeneration replaces mesh data"
+Definition-level changes rebuild the blockout. These are changes that redefine what the generated figure looks like:
 
-    Because regeneration rebuilds the mesh objects, any manual edits you have made to the blockout geometry (sculpting, vertex edits, modifiers, etc.) will be lost when a regeneration occurs. This is expected during the active stage, where the figure is still being shaped.
+- **Proportions** -- preset, gender, proportion type, height, Structure, and Volume
+- **Display geometry** -- geometry mode and geometry resolution
+- **Visibility toggles** -- showing or hiding Arms, Legs, Shoulder Girdle, or Spine
 
-    If you finalize a blockout, make manual edits to its meshes, and then reactivate it, be aware that changing any regeneration-triggering property will replace those edits. FBG shows a confirmation prompt when reactivating to remind you of this.
+During a rebuild, FBG regenerates the affected objects from the current definition. Visibility toggles only rebuild the relevant section -- hiding arms does not regenerate the legs.
 
-## Mesh deformation
+The collection hierarchy and the controller object are always preserved across rebuilds.
 
-Some pose properties go beyond simple object transforms - they deform the mesh vertices of specific blockout objects to produce more convincing results. This affects five objects: the spine, waist, ribcage, deltoid, and forearm.
+### What updates in place
 
-For example, when the torso bends, the waist and ribcage meshes deform to follow that bend rather than rotating as rigid shapes. Similarly, forearm pronation/supination twists the forearm mesh, and arm rotation can twist the deltoid. These are visual deformations only - they do not affect animation data or the baked rig - but they make the blockout much more readable as a figure reference.
+Most pose changes do not rebuild anything. Instead, FBG recalculates each object's position and rotation based on the current pose and applies the new transforms to the existing objects. The mesh data stays untouched.
 
-!!! warning "Deformation updates vertex positions"
+This is why posing feels much faster than changing proportions -- the addon is only updating object transforms, not regenerating geometry.
 
-    Like regeneration, mesh deformation overwrites vertex positions on the affected objects. If you have manually edited the geometry of the spine, waist, ribcage, deltoid, or forearm objects, those edits will be lost when deformation updates run.
+### Mesh deformation
 
-### Update modes
+Some pose properties go beyond simple transforms -- they deform the mesh vertices of specific objects to produce more convincing results. Rigid rotation alone would look wrong for these parts, so FBG recalculates their vertex positions instead. This affects:
 
-Because mesh deformation is more expensive than simple transforms, FBG gives you control over when it happens. Two update mode selectors appear in the Pose section - one for **Twist Updates** (deltoid and forearm) and one for **Torso Bend Updates** (ribcage and waist). A similar selector appears in the Proportions section for **Structure/Volume/Height Updates**, which controls how quickly the full regeneration responds while you drag sliders.
+- **Ribcage**, **Waist** and **Spine** -- deform when the torso bends to visualize spine curvature
+- **Forearm** -- deforms to visualize pronation/supination, twisting the mesh along its length
+- **Deltoid** -- deforms with arm rotation, twisting to follow shoulder movement
 
-<!-- TODO: screenshot - the deffered/immediate/off selector options -->
-<!-- ![Deformation Updates Selector](assets/images/how-fbg-works-def-update-selector.avif) -->
+These are not full rebuilds. They are local vertex passes applied to just these objects. But like a rebuild, they do overwrite vertex positions -- any manual edits to these objects will be lost when deformation runs.
+
+<!-- the deferred/immediate/off selector -->
+<!-- ![Mesh deformation](assets/images/how-fbg-works-mesh-deformation.avif) -->
+
+## Update modes
+
+Because mesh deformation and full rebuilds are more expensive than simple transforms, FBG gives you control over when they run.
+
+Update mode selectors appear in three places:
+
+- **Twist Updates** -- in the Pose section, controls deltoid and forearm twist deformation
+- **Torso Bend Updates** -- in the Pose section, controls ribcage, waist and spine bend deformation
+- **Structure/Volume/Height Updates** -- in the Proportions section (Structure sub-foldout header), controls how quickly the full regeneration responds while you drag sliders
 
 Each offers up to three modes:
 
-- **Deferred** - waits until you stop adjusting, then updates after a short delay. This keeps slider dragging smooth and responsive.
-- **Immediate** - updates on every change as you drag. More responsive visually, but can be slower with high-resolution geometry.
-- **Off** - disables the deformation entirely. The objects will transform as rigid shapes. Available for Twist and Torso Bend updates but not for Structure/Volume (which always needs to regenerate).
+- **Deferred** -- waits until you stop adjusting, then updates after a short delay. This keeps slider dragging smooth because the expensive update only runs once at the end. Delay selector allows you to adjust how long FBG waits before triggering the update.
+- **Immediate** -- updates on every change as you drag. More responsive visually, but can slow down with high-resolution geometry.
+- **Off** -- disables the deformation entirely. The objects transform as rigid shapes. Available for Twist and Torso Bend but not for Structure, Volume and Height, which always needs to regenerate.
 
-The right choice depends on your geometry resolution. At lower resolutions, Immediate is usually fine. At higher resolutions (e.g., high Quad Sphere subdivision levels), Deferred or Off will keep the UI responsive and performance better.
+At lower geometry resolutions, Immediate is usually fine. At higher resolutions, Deferred or Off can keep the viewport more responsive.
+
+<!-- the deferred/immediate/off selector -->
+![Update mode selector](assets/images/how-fbg-works-update-mode-selector.avif)
 
 ### Deformation during animation playback
 
-When a finalized blockout has animation enabled, the **Deform updates** toggle in the Previous Blockouts list controls whether mesh deformations run during playback. With it enabled, objects like the spine, waist or forearm will deform as the animation plays. With it disabled, they transform as rigid objects - faster, but less visually accurate.
+When a finalized blockout has `Animation Playback` enabled, the `Deform Updates` toggle in the Previous Blockouts list controls whether mesh deformations run during playback.
 
-This is the same deformation system described above, just applied per-frame during playback instead of interactively during posing.
+With it enabled, objects like the ribcage, waist, and forearm will deform as the animation plays. With it disabled, they transform as rigid shapes -- faster, but less visually accurate.
 
-## The controller object
+## Data management
 
-Each blockout has a controller object - a small empty that lives inside the blockout's collection. The controller stores all of the blockout's settings, pose values, combo definitions, and animation data (the Action with keyframed F-curves).
+FBG manages its blockout data throughout the lifecycle, not just at creation.
 
-You generally do not need to interact with the controller directly. It is managed by FBG and exists so that each blockout's state is self-contained and independent from other blockouts in the scene.
+### During rebuilds
 
-## Multiple blockouts
+When a property change triggers a rebuild, FBG handles the cleanup internally -- old mesh data is replaced or removed, and new geometry is built to match the updated definition. The collection hierarchy and controller object survive every rebuild. Objects that you have added to the collection yourself are also preserved -- FBG only manages objects it created.
 
-You can have as many finalized blockouts in a scene as you need. Each one has its own collection, controller, settings, and animation. The Previous Blockouts list lets you manage them all.
+### During deletion
 
-Only one blockout can be active at a time.
+When you delete a blockout through the FBG panel, the addon removes the objects, their underlying mesh data, the collection hierarchy, and any associated animation data. The same applies to bake operations -- re-baking replaces the previous bake result with the new one.
 
-## Scene cleanup
+### Manual deletion
 
-FBG is designed for iteration - you can generate blockouts, remove them, bake rigs, rebake, and repeat without worrying about leftover data accumulating in your scene. When you delete a blockout through the FBG panel, the add-on removes not just the visible objects but also the associated data blocks: meshes, actions, and any other managed data.
-
-The same applies to bake operations. Re-baking a rig cleans up the previous bake's data before creating the new one.
-
-This cleanup only works when you use FBG's own controls to remove things. If you manually delete blockout objects through Blender's outliner or viewport, the associated data blocks may be left behind. For the cleanest results, always use the FBG panel's delete controls.
-
----
-
-With these concepts in mind, head to [Proportions](proportions/index.md) to start shaping your figure's build.
+This cleanup only works through FBG's own controls. If you manually delete blockout objects through Blender's Outliner, the addon cannot track that, and orphaned data may be left behind.

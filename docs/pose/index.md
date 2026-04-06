@@ -1,73 +1,60 @@
 # Pose
 
-FBG's posing workflow is primarily **property-driven** rather than based on a traditional viewport controller rig. Instead of grabbing bones and rotating controllers in the 3D View, you pose the figure through sliders and values in the FBG panel.
+FBG's posing workflow is entirely **property-driven**. You pose the figure through the UI panel rather than by manipulating a rig in the viewport. Each body region has its own set of properties, and every pose change is built from those values.
 
-That can feel unusual at first if you are used to conventional rigging workflows. The tradeoff is that FBG can build higher-level behavior into its pose properties, so a single control can coordinate several related adjustments under the hood.
+![Pose section presentation](../assets/images/pose-presentation.avif)
 
-A good example is torso flexion. When you bend the torso forward, the motion is not applied evenly across the spine. It is distributed across four vertebral regions using anatomically researched weights - the lumbar spine carries most of the flexion, the thoracic spine contributes less. One slider, but the spine bends the way a real spine bends. The same principle applies throughout FBG's pose system: properties are designed to produce anatomically informed results, not mechanical ones.
+## Pose Layout
 
-This page is an overview of the Pose section. Each body region has its own page with the detailed controls.
+The Pose section is split into central and bilateral regions:
 
-<!-- TODO: screenshot - the Pose section overview with the main foldouts visible -->
-<!-- ![Pose section overview](assets/images/pose-panel-overview.avif) -->
+- Central: [Root](root.md), [Torso & Head](torso-head.md), and [Pelvis](pelvis.md)
+- Bilateral: [Arms & Shoulders](shoulders-arms.md), [Hands](hands.md), [Legs](legs.md), and [Feet](feet.md)
 
-## Pose layout
+**Central** sections control the figure's central and global pose.
 
-The Pose section is organized into body regions that mirror the UI layout:
+**Bilateral** sections control paired body parts. They work with the **Mirror** setting: when Mirror is on, the **right-side** controls drive both sides. When Mirror is off, left and right become independent.
 
-- [Root](root.md)
-- [Arms & Shoulders](shoulders-arms.md)
-- [Hands](hands.md)
-- [Torso & Head](torso-head.md)
-- [Pelvis](pelvis.md)
-- [Legs](legs.md)
-- [Feet](feet.md)
+## Mirror
 
-The **Arms**, **Hands**, **Legs**, and **Feet** sections are bilateral and work with FBG's mirror and side-filter tools. **Root**, **Torso & Head**, and **Pelvis** are central sections.
+Mirror is on by default. When enabled, the right-side values drive both sides of the figure for all bilateral sections. The left-side properties still exist but are not read during pose evaluation -- the pose builder constructs the left side directly from the right-side values. Central sections are unaffected by mirror.
 
-## Shared controls
+When you turn Mirror off, left and right become independent. **L** and **R** visibility toggles appear so you can show one side at a time, and bilateral properties are labeled **(R)** and **(L)** to distinguish them.
 
-Several controls affect the whole Pose workflow rather than a single body section.
+The first time you turn Mirror off, FBG copies the current right-side values to the left side if the left side has not been edited yet. This keeps the visible pose intact. After that, both sides retain their own values across mirror toggles.
 
-### Pose header
+[Pose Combos](../pose-combos.md) follow the same rule. Combo values go through the same pose evaluation as direct property edits, so with Mirror on, only the right-side bilateral values affect the final pose. If a combo was authored with different left and right values, Mirror forces both sides to follow the right.
 
-At the top of the Pose section, FBG provides:
 
-- a **limit bypass** toggle
-- a **global reset** button for all pose properties
+## Symmetry tools
 
-The limit bypass toggle removes FBG's default pose-property limits. Enable it when you need to push a pose beyond the usual working range, whether for stylization, exaggeration, or offset and target adjustments. When disabled again, any out-of-range values are clamped back into the standard limits.
+When Mirror is off, the Pose section exposes additional controls for working with left and right independently.
 
-### Mirror and side filters
+**Flip Pose** swaps left and right pose values across the whole figure. Bilateral properties exchange sides, while directional centerline values -- such as pelvis rotation, torso rotation, neck rotation -- have their sign reversed. The result is a mirrored version of the full pose.
 
-Mirror is on by default. In mirrored mode, the right-side controls drive both sides together. This is especially important for Pose Combos, because combos also respect the current Mirror state. If a combo includes bilateral pose properties while Mirror is enabled, the right side acts as the driving side for both halves of the pose.
+**Copy symmetry** copies pose values from one side to the other as a one-time action. The global copy buttons below the Mirror row copy all bilateral properties at once. Each bilateral section header also has its own copy buttons for copying only that section.
 
-When you turn Mirror off, the left and right values become independent, and **L** / **R** visibility toggles appear so you can focus on one side at a time. If the left side is still untouched, FBG copies the current right-side pose over on that first mirror-off switch so the visible pose stays intact. After that, if the left side already has its own values, toggling Mirror on and off preserves them.
+| Mirror On | Mirror Off |
+| --- | --- |
+| ![Mirror on controls](../assets/images/pose-mirror-on-controls.avif) | ![Mirror off controls](../assets/images/pose-mirror-off-controls.avif) |
 
-<!-- TODO: screenshot - Mirror disabled, showing L/R filters, Flip Pose, and global copy-symmetry buttons -->
-<!-- ![Mirror and symmetry controls](assets/images/pose-mirror-controls.avif) -->
 
-### Flip and copy symmetry
+## Limits bypass and reset pose
 
-When Mirror is off, FBG exposes extra symmetry tools:
+**Limits bypass** (the lock icon) removes FBG's default pose limits. These limits are designed as practical working ranges, informed by anatomical motion, so normal posing stays controlled and believable. Enabling Limits bypass lets you push past them when needed. When you re-enable limits, any out-of-range values are clamped back.
 
-- **Flip Pose** swaps left and right pose values, including the necessary sign changes for centerline motions such as pelvis rotation or torso lateral bend. It is similar in spirit to Blender's Paste Pose Flipped feature.
-- **Directional copy symmetry**, shown as left and right arrow buttons, copies the current pose from one side to the other as a one-time action across the whole Pose section. If you only want to copy one body region, use the section-level arrow buttons in the bilateral foldouts.
+**Reset Pose** clears all pose properties back to their defaults at once. Each body region foldout also has its own reset button for clearing only that section without affecting the rest of the figure.
 
-### Section resets and update modes
+!!! tip "Mirror-off behavior"
 
-Each pose section has its own reset button, so you can clear one region without affecting the rest of the figure. Bilateral sections also display section-level copy-symmetry buttons, which affect only the properties from that section.
+    With Mirror off, bilateral section reset buttons respect the current `L` / `R` visibility filter. If only one side is shown, only that side is reset.
 
-Some sections also expose performance-related update controls in their headers:
+    The main **Reset Pose** button always resets the full pose.
 
-- **Arms & Shoulders** includes controls for twist update behavior
-- **Torso & Head** includes controls for torso-bend update behavior
+---
 
-These settings are covered in more detail on [How FBG Works](../how-fbg-works.md#update-modes).
+![Symmetry tools](../assets/images/pose-symmetry-tools.avif)
 
-<!-- TODO: screenshot - section headers showing per-section reset, symmetry buttons, and update-mode controls -->
-<!-- ![Pose section header controls](assets/images/pose-section-header-controls.avif) -->
+## Update modes
 
-## Working approach
-
-The Pose section can look dense at first, because FBG exposes many dedicated anatomical motions instead of hiding everything behind a few generic controllers. In practice, the workflow becomes much easier once you learn where each body region lives and which controls are meant for broad gesture versus local refinement.
+Some body regions include update mode controls in their section headers. These control when mesh deformation recalculates as you adjust pose values -- choosing between Immediate, Deferred, and Off depending on how responsive you need the viewport to be. For details, see [How FBG Works](../how-fbg-works.md#update-modes).
