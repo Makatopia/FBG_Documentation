@@ -28,6 +28,10 @@ nav = [
 ]
 
 extra_css = ["assets/stylesheets/extra.css"]
+extra_javascript = [
+    "assets/javascripts/medium-zoom.js",
+    "assets/javascripts/zoom.js"
+]
 
 [project.theme]
 language = "en"
@@ -42,8 +46,8 @@ features = [
     "navigation.expand",
     "navigation.footer",
     "navigation.indexes",
-    "navigation.instant",
-    "navigation.instant.prefetch",
+    # "navigation.instant",
+    # "navigation.instant.prefetch",
     "navigation.path",
     # "navigation.sections",
     "navigation.top",

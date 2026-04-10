@@ -2,7 +2,7 @@
 
 FBG's posing workflow is entirely **property-driven**. You pose the figure through the UI panel rather than by manipulating a rig in the viewport. Each body region has its own set of properties, and every pose change is built from those values.
 
-![Pose section presentation](../assets/images/pose-presentation.avif)
+![Pose section presentation](../assets/images/pose-presentation.avif){ .zoom }
 
 ## Pose Layout
 
@@ -34,14 +34,29 @@ When Mirror is off, the Pose section exposes additional controls for working wit
 
 **Copy symmetry** copies pose values from one side to the other as a one-time action. The global copy buttons below the Mirror row copy all bilateral properties at once. Each bilateral section header also has its own copy buttons for copying only that section.
 
-| Mirror On | Mirror Off |
-| --- | --- |
-| ![Mirror on controls](../assets/images/pose-mirror-on-controls.avif) | ![Mirror off controls](../assets/images/pose-mirror-off-controls.avif) |
+
+<div class="grid" markdown>
+
+<figure markdown>
+  <figcaption>Mirror On</figcaption>
+  ![Mirror on controls](../assets/images/pose-mirror-on-controls.avif){ .zoom }
+</figure>
+
+<figure markdown>
+  <figcaption>Mirror Off</figcaption>
+  ![Mirror off controls](../assets/images/pose-mirror-off-controls.avif){ .zoom }
+</figure>
+
+</div>
 
 
-## Limits bypass and reset pose
+## Limits Bypass and Reset Pose
 
-**Limits bypass** (the lock icon) removes FBG's default pose limits. These limits are designed as practical working ranges, informed by anatomical motion, so normal posing stays controlled and believable. Enabling Limits bypass lets you push past them when needed. When you re-enable limits, any out-of-range values are clamped back.
+**Limits Bypass** (the lock icon in the Pose header) disables FBG's normal pose clamps. The default limits are practical working ranges, informed by anatomical motion, so normal posing stays controlled and believable.
+
+Pose properties also have a wider technical range behind the scenes. With Limits Bypass off, values outside the normal range are clamped back automatically. With Limits Bypass on, FBG allows those over-range values so you can push poses further when needed. When you turn Limits Bypass off again, any out-of-range values are clamped back to the normal range.
+
+Some normalized controls, such as toe controls, still drag within their normal `-1` to `1` range even when Limits Bypass is enabled. To overdrive those controls, type the value directly into the field.
 
 **Reset Pose** clears all pose properties back to their defaults at once. Each body region foldout also has its own reset button for clearing only that section without affecting the rest of the figure.
 
@@ -53,7 +68,7 @@ When Mirror is off, the Pose section exposes additional controls for working wit
 
 ---
 
-![Symmetry tools](../assets/images/pose-symmetry-tools.avif)
+![Symmetry tools](../assets/images/pose-symmetry-tools.avif){ .zoom }
 
 ## Update modes
 

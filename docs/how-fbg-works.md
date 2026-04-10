@@ -90,9 +90,9 @@ Because mesh deformation and full rebuilds are more expensive than simple transf
 
 Update mode selectors appear in three places:
 
-- **Twist Updates** -- in the Pose section, controls deltoid and forearm twist deformation
-- **Torso Bend Updates** -- in the Pose section, controls ribcage, waist and spine bend deformation
-- **Structure/Volume/Height Updates** -- in the Proportions section (Structure sub-foldout header), controls how quickly the full regeneration responds while you drag sliders
+- **Twist Updates** -- in `Pose > Arms & Shoulders`, controls deltoid and forearm twist deformation
+- **Torso Bend Updates** -- in `Pose > Torso & Head`, controls ribcage, waist and spine bend deformation
+- **Structure/Volume/Height Updates** -- in `Proportions > Structure`, controls regeneration for structure, volume, and height changes
 
 Each offers up to three modes:
 
@@ -101,6 +101,8 @@ Each offers up to three modes:
 - **Off** -- disables the deformation entirely. The objects transform as rigid shapes. Available for Twist and Torso Bend but not for Structure, Volume and Height, which always needs to regenerate.
 
 At lower geometry resolutions, Immediate is usually fine. At higher resolutions, Deferred or Off can keep the viewport more responsive.
+
+The gear menu next to `Twist Updates` exposes `Deltoid Pose Twist`, so you can adjust or disable the pose-driven deltoid deformation without turning off forearm deformation. This exists because deltoid twist is more of an optional refinement that you may want to disable for smoother performance, while still keeping the forearm twist active.
 
 <!-- the deferred/immediate/off selector -->
 ![Update mode selector](assets/images/how-fbg-works-update-mode-selector.avif)

@@ -1,220 +1,192 @@
 # Arms & Shoulders
 
-This section combines two closely related systems: the shoulder girdle and the arm itself. The shoulder girdle drives broad shoulder motion with automatic scapula coupling, while the arm offers FK and IK modes with shared controls available in both.
-
-<!-- TODO: screenshot - the Arms & Shoulders section expanded in the Pose panel -->
-<!-- ![Arms & Shoulders section](assets/images/pose-arms-overview.avif) -->
+The shoulder girdle and arm controls work in two layers: broad shoulder motion with automatic scapula coupling, and FK or IK arm placement.
 
 ## At a glance
 
-**Shoulder Girdle** - two main properties drive the broad shoulder motion and automatically couple into the scapulae. Three additional properties under `Scapula Control` give direct scapula refinement:
+**Shoulder Girdle** -- two main properties drive shoulder motion. Three additional properties under `Scapula Control` provide direct scapula refinement:
 
-- `Elevation` and `Protraction` set the shoulder-girdle motion.
-- `Scapula Control` exposes manual scapula channels:
-    - `Upward Rot` - scapula upward rotation
-    - `A/P Tilt` - scapula anterior/posterior tilt
-    - `Ext/Int` - scapula external/internal rotation
+- `Elevation` and `Protraction` set the main shoulder-girdle motion.
+- `Scapula Control` exposes manual scapula channels: `Upward Rot`, `A/P Tilt`, and `Ext/Int`.
 
-**Arm** - two working modes with shared controls available in both:
+**Arm** -- two modes with shared controls:
 
-- `FK Mode` poses the arm by angles.
-- `IK Mode` poses the arm by hand target, elbow pole, and optional hand pinning.
+- `FK Mode` poses the arm using rotation angles.
+- `IK Mode` poses the arm using a hand target, elbow pole, and optional hand pinning.
 - `Pronation` and `Elbow Valgus` are available in both modes.
+
+
+<div class="grid" markdown>
+
+<figure markdown>
+  <figcaption>FK Interface</figcaption>
+  ![Arm FK interface](../assets/images/pose-arms-fk-ui.avif){ .zoom }
+</figure>
+
+<figure markdown>
+  <figcaption>IK Interface</figcaption>
+  ![Arm IK interface](../assets/images/pose-arms-ik-ui.avif){ .zoom }
+</figure>
+
+</div>
+
 
 ## Shoulder girdle
 
-The shoulder girdle controls shape the shoulder line and the base scapula behavior. This is where you define shrugging, rounding forward, and similar upper-torso changes.
+The shoulder girdle controls define the shoulder line and base scapula behavior.
 
-`Elevation` raises or lowers the shoulder - positive values lift, negative values depress.
+`Elevation` raises or lowers the shoulder.
 
-`Protraction` moves the shoulder girdle forward or back - positive values protract (round forward), negative values retract (pull back).
+`Protraction` moves the shoulder girdle forward or back.
 
 These two controls do most of the work in typical poses.
 
+![Elevation and Protraction in action](../assets/images/pose-arms-elevation-protraction.avif){ .zoom }
+
 ### Automatic scapula response
 
-Even with the manual scapula control sliders at `0`, the scapulae are not static. `Elevation` and `Protraction` already drive an automatic scapula response behind the scenes.
+Even with the manual scapula control sliders at `0`, the scapulae are not static. `Elevation` and `Protraction` drive an automatic scapula response behind the scenes.
 
 `Elevation` tends to produce:
 
 - upward rotation
-- a little posterior tilt
-- a little external rotation
+- slight posterior tilt
+- slight external rotation
 
 `Protraction` tends to produce:
 
-- small upward-rotation
+- slight upward rotation
 - anterior tilt
 - internal rotation
 
 Depression and retraction drive the opposite responses in each case.
 
-This is intentional. The main sliders are designed to do most of the work, so you can get believable shoulder motion quickly without needing to manually dial every scapula channel on every pose. The manual scapula controls exist for the cases where you need to push or correct that automatic result.
+The main sliders are designed to handle most of the work, so you can get believable shoulder motion quickly without touching individual scapula channels. The manual scapula controls are for cases where you need to push or correct the automatic result.
 
 ### Scapula Control
 
-`Scapula Control` exposes the manual scapula channels. These controls are additive refinements layered on top of the automatic response described above. They do not replace it - they adjust it.
+`Scapula Control` exposes the manual scapula channels. These controls are additive refinements layered on top of the automatic response described above.
 
-- `Upward Rot` - positive adds upward scapula rotation, negative adds downward.
-- `A/P Tilt` - positive tilts anterior, negative tilts posterior.
-- `Ext/Int` - positive rotates external, negative rotates internal.
+- `Upward Rot` -- Upward rotation.
+- `A/P Tilt` -- Anterior/Posterior tilt.
+- `Ext/Int` -- External/Internal rotation.
 
 The easiest way to use these:
 
 1. Set the broad pose with `Elevation` and `Protraction`.
-2. Open `Scapula Control` only if the shoulder blade behavior needs help.
+2. Open `Scapula Control` if the shoulder blade behavior needs help.
 
 
-<!-- TODO: screenshot - the Scapula Control foldout expanded -->
-<!-- ![Scapula Control](assets/images/pose-arms-scapula-control.avif) -->
+![Scapula Control](../assets/images/pose-arms-scapula-control.avif){ .zoom }
+
+!!! note "Scapula controls move the arm when inheriting"
+    With `Inherit Torso` enabled, adjusting `Upward Rot`, `A/P Tilt`, or `Ext/Int` under `Scapula Control` will also move the FK arm, because those channels feed into the shoulder socket orientation that the arm inherits. With `Inherit Torso` disabled, the same scapula adjustments only affect the shoulder blade -- the arm stays in place.
+
 
 ## Arm modes
 
 Each side can use `FK` or `IK` independently.
 
-`FK` is the anatomical approach - you shape the arm from the shoulder outward by setting swing angles and elbow bend directly.
+`FK` is the direct-angle mode -- you pose the arm by adjusting its joint angles directly.
 
-`IK` is the placement approach - you set where the hand goes and the arm solves to get there. It also gives you explicit elbow direction through the pole target, and [Hand Pin](#hand-pin) for keeping the hand stable while the body moves.
+`IK` is the placement approach -- you set where the hand goes and the arm solves to get there. IK also provides explicit elbow direction via the pole target and [Hand Pin](#hand-pin) for locking the hand in place while the body moves.
 
 ### FK mode
 
 With `FK Mode` enabled, the section exposes direct arm-angle controls:
 
 - `Inherit Torso` makes the FK arm follow the live shoulder socket orientation. See [Inherit Torso](#inherit-torso) below.
-- `Flexion` moves the arm forward or backward.
-- `Rotation` twists the upper arm around its length.
-- `Abduction` raises the arm out to the side.
+- `Flexion` swings the arm forward or backward.
+- `Abduction` swings the arm out to the side.
+- `Rotation` rotates the arm around its long axis.
 - `Elbow Flexion` bends or straightens the elbow.
 - `Pronation` rotates the forearm between pronation (palm-down) and supination (palm-up).
-- `Elbow Valgus` adjusts the carrying angle at the elbow.
+- `Elbow Valgus` adjusts the outward arm alignment (carrying angle).
 
+![Arm FK controls](../assets/images/pose-arms-fk-controls.avif){ .zoom }
 
 #### Inherit Torso
 
-`Inherit Torso` is the main bridge between the shoulder girdle and the FK arm. When enabled, the FK arm follows the full live shoulder socket orientation - this includes the torso, clavicle motion from `Elevation` and `Protraction`, the automatic scapula coupling, and any manual `Scapula Control` adjustments. The arm feels carried by the entire shoulder system.
+`Inherit Torso` is the main bridge between the shoulder girdle and the FK arm. When enabled, the FK arm follows the full live shoulder socket orientation -- this includes the torso, clavicle motion from `Elevation` and `Protraction`, the automatic scapula coupling, and any manual `Scapula Control` adjustments. The arm feels carried by the entire shoulder system.
 
 When disabled, the FK arm uses only its own local rotation and stays isolated from ongoing torso, shoulder, and scapula changes.
 
-!!! note "Scapula controls move the arm when inheriting"
-    With `Inherit Torso` enabled, adjusting `Upward Rot`, `A/P Tilt`, or `Ext/Int` under `Scapula Control` will also move the FK arm, because those channels feed into the shoulder socket orientation that the arm inherits. With `Inherit Torso` disabled, the same scapula adjustments only affect the shoulder blade - the arm stays in place.
-
-Note that IK mode always solves relative to the live shoulder socket - the equivalent of Inherit Torso being permanently on.
+![Inherit Torso toggle](../assets/images/pose-arms-inherit-torso.avif){ .zoom }
 
 ### IK mode
 
 With `FK Mode` disabled, the section switches to a hand-target IK solve:
 
 - `Hand X`, `Hand Y`, and `Hand Z` move the hand target in figure space.
-- `Pole X`, `Pole Y`, and `Pole Z` move the elbow pole target.
+- `Pole X`, `Pole Y`, and `Pole Z` move the elbow pole target in figure space.
 - `Pole Influence` controls how strongly the arm follows that pole target.
+- The eye icon next to the pole controls shows or hides the elbow pole empty in the viewport.
 - `Pin Hand`, `Capture`, and `Clear` manage the stored hand-pin target.
-- `Pronation` and `Elbow Valgus` remain available in IK as well.
+- `Pronation` and `Elbow Valgus` remain available in IK mode.
 
-
-### Pole control
-
-The elbow pole controls tell IK which way the elbow should prefer to point.
-
-- `Pole X`, `Pole Y`, and `Pole Z` move the pole target.
-- `Pole Influence` blends between natural elbow behavior and explicit pole control.
-- The eye icon next to the pole controls shows or hides the elbow empty marker in the viewport.
+![Arm IK controls](../assets/images/pose-arms-ik-controls.avif){ .zoom }
 
 
 ### Elbow Valgus
 
-`Elbow Valgus` is not a typical pose slider. It adjusts the natural outward angle of the forearm at the elbow - the carrying angle - and it has geometric side effects that are worth understanding.
+`Elbow Valgus` adjusts the arm's carrying angle -- the structural angle between the humerus and the forearm. This is not an elbow-local bend; it changes the geometry of the whole arm, including the hand position.
 
-The figure already carries a base carrying angle from its proportions:
+The figure includes a base carrying angle from proportions (`11 deg` female, `7 deg` male), so the slider works as an offset on top of that base.
 
-- female - `11 deg`
-- male - `7 deg`
+![Elbow Valgus](../assets/images/pose-arms-elbow-valgus.avif){ .zoom }
 
-The `Elbow Valgus` slider is an offset on top of that base, so the arm has a carrying angle even when the slider is at zero.
+**FK behavior:** The carrying angle is built into the elbow's flexion axis, so it naturally diminishes as the elbow bends and the forearm folds inward.
 
-Unlike a simple cosmetic offset, `Elbow Valgus` is integrated into the arm's geometry in both FK and IK modes.
+**IK behavior:** The carrying angle is built into the arm's IK reference, so changing it shifts the wrist target even when `Hand X/Y/Z` are unchanged. The IK solve then matches the arm to this updated reference.
 
-**FK behavior:** the carrying angle naturally diminishes as the elbow bends. To see this clearly, set a high `Elbow Valgus` value and then increase `Elbow Flexion` - the forearm always converges to the same place at full flexion regardless of the valgus amount. This matches real anatomy where the carrying angle is most visible with the arm extended and nearly disappears when the elbow is fully bent.
-
-**IK behavior:** the carrying angle shapes the arm's default wrist target, so changing `Elbow Valgus` can move the hand even when `Hand X/Y/Z` are unchanged. Internally, FBG keeps the carrying angle out of the raw 2-bone solve for stability, then reapplies it afterward, which can also cause small forearm-length variation depending on the arm's configuration.
-
-**Bake To Rig:** FBG compensates for the IK forearm length variation by keying forearm Y-scale on every baked frame, keeping the baked rig aligned with the source figure.
+**Bake To Rig:** The IK solve can produce slight forearm length variation. FBG compensates by keying forearm Y-scale on every baked frame.
 
 !!! warning "Export consideration"
-    If you plan to export or retarget a baked Action, check whether your destination workflow supports animated bone scale. If it does not, baked arm playback may not reproduce exactly outside Blender.
+    If you plan to export or retarget a baked Action, check whether your destination workflow supports animated bone scale.
 
 ## Hand Pin
 
-`Pin Hand` is the key support-pose workflow in this section. It is built for situations where you want the hand to stay in place while the rest of the arm and body solve around it - bracing on a wall, leaning on a table, floor support poses, or keeping a hand planted while adjusting torso or pelvis motion.
+`Pin Hand` stores the current hand position and reuses it as the IK target, so the hand stays stable while the rest of the arm and body solve around it. It is meant for contact and support poses.
+
+![Hand Pin support pose](../assets/images/pose-arms-hand-pin-support.avif){ .zoom }
 
 ### Basic workflow
 
 1. Pose the hand where you want it to stay.
-2. Press `Capture` to store the current hand position and orientation as the pin target. This also activates `Pin Hand` automatically.
-3. Move the body, shoulder girdle, or torso as needed.
-4. Use `Pin Hand` to temporarily suspend and resume pinning against the same stored target.
-5. Press `Capture` again if you want to redefine the stored target from the current pose.
-6. Press `Clear` to remove the stored target and return to normal IK.
+2. Press `Capture` to store the current hand position and orientation. This automatically activates `Pin Hand`. Toggle it off and on to suspend and resume pinning against the same stored target.
+3. Adjust the pose while the hand stays pinned.
+4. Press `Clear` to remove the stored target and return to normal IK.
 
 If `Pin Hand` is enabled without a stored target, the UI shows `Capture required`. While a pin is active, the normal `Hand X/Y/Z` controls are hidden because the stored target takes over.
 
-### What Hand Pin stores
+`Pin Hand` stores the hand target in figure-local space, so it keeps the hand stable while you change internal body motion, but moves with the figure if you reposition the whole root.
 
-Hand Pin is not a world-constraint system. It stores a target in figure-local space.
+![Hand Pin workflow](../assets/images/pose-arms-hand-pin-workflow.avif){ .zoom }
 
-!!! info "Figure-local, not world-constrained"
-    The pinned target lives in the figure's own coordinate space. It's job is to keep the hand stable while you change internal body motion - torso bends, pelvis shifts, shoulder girdle adjustments. But if you move the entire figure root, the pinned target moves with it.
-
-
-### Pinning and wrist controls
+### Pinning and hand controls
 
 Hand Pin stores the hand target, not the finger pose.
 
 - Finger and thumb controls remain free while pinning is active.
-- `Forearm Pronation`, `Wrist Flexion`, and `Wrist Deviation` remain available while Hand Pin is active, but the pinned solve compensates for them to keep the captured hand orientation as stable as possible. In normal use this means they often appear non-reactive after capture. For predictable results, it is best to set those controls before capturing the pin target.
+- `Forearm Pronation`, `Wrist Flexion`, and `Wrist Deviation` remain available, but while the hand is pinned they are normally compensated out to preserve the captured hand orientation, so they usually appear non-reactive. They only start to show visible influence when the wrist angles become extreme enough for the hand-pin clamp to engage.
 
-If the requested wrist setup becomes too extreme relative to the forearm, FBG clamps the wrist swing for stability. In those cases the pinned hand can deviate from the captured orientation.
+!!! warning "Hand Pin Clamp"
+    If the requested wrist setup becomes too extreme relative to the forearm, FBG clamps the wrist swing for stability. This can cause the pinned hand to deviate from the captured orientation.
+
 
 ### Mirror and symmetry with pinning
 
-When Mirror is on, capturing on the driving side automatically creates a mirrored pin target on the opposite side.
+When Mirror is on, capturing a hand target automatically creates a mirrored target on the opposite side.
 
 For asymmetrical support poses, turn Mirror off and capture each side separately.
 
-<!-- TODO: screenshot - the IK arm controls with hand pin and pole controls visible -->
-<!-- ![Arm IK controls](assets/images/pose-arms-ik-controls.avif) -->
 
-## Practical workflow
+## Forearm and Deltoid Deformation
 
+The section header in the UI includes the `Twist Updates` controls. These control when the forearm and deltoid twist deformations update while you pose.
 
-1. Set the shoulder line with `Elevation` and `Protraction`.
-2. Pose the arm in FK if you are blocking gesture and do not need the hand fixed.
-3. Switch to IK when hand placement becomes more important.
-4. Use `Scapula Control` for refinement after the broad pose is working.
-5. Use `Capture` after the hand is in the position and orientation you actually want to preserve.
+In practice, forearm twist deformation responds to `Pronation`, while deltoid twist deformation responds to arm `Rotation` in FK mode.
 
-### Choosing between FK, IK, and Hand Pin
-
-Use FK when:
-
-- you want fast anatomical posing
-- you are shaping broad arm gesture
-- the hand does not need to stay fixed
-- you want direct control over shoulder swing and elbow bend
-
-Use IK when:
-
-- the hand needs to reach or stay planted
-- you care more about hand placement than shoulder angles
-- you want to reposition the body around a stable hand
-- you need elbow direction control through the pole target
-
-Use Hand Pin when:
-
-- the hand should keep its place during torso or support motion
-- the pose depends on contact or support
-
-## Twist updates
-
-The section header includes the arm twist update controls. These control when the deltoid and forearm twist deformations update while you pose. They affect the visual deformation behavior, not the underlying pose data itself.
+The gear button next to `Twist Updates` opens `Deltoid Pose Twist`, which controls how much FK arm `Rotation` contributes to the deltoid mesh twist. Setting it to `0` disables the pose-driven deltoid deformation while keeping forearm twist active.
 
 For more detail, see [How FBG Works](../how-fbg-works.md#update-modes).

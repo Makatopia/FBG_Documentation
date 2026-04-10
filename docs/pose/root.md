@@ -1,19 +1,12 @@
 # Root
 
-This section places and orients the figure in world space. Every other pose section works inside that root transform.
+This section places and orients the figure in world space. All other pose sections work relative to that root transform.
 
-<!-- TODO: screenshot - the Root section expanded in the Pose panel -->
-<!-- ![Root section](../assets/images/pose-root-overview.avif) -->
-
-## At a glance
-
-- `Location` moves the figure in world space.
-- `Rotation` orients the figure around a pivot point.
-- `Pivot Offset` repositions the rotation pivot in figure-local space.
+![Root section](../assets/images/pose-root-overview.avif){ .img-center width=50% }
 
 ## Location
 
-`X`, `Y`, and `Z` move the figure in world space. These are the coarsest position controls - use them to place the figure in the scene rather than to shape the pose itself.
+`X`, `Y`, and `Z` move the figure in world space. These are the broadest placement controls - use them to place the figure in the scene rather than to shape the pose itself.
 
 ## Rotation
 
@@ -27,5 +20,7 @@ When `Pivot Offset` is `0,0,0`, rotation uses the default root pivot. Moving `Pi
 
 !!! note "Pivot compensation"
     If the figure already has root rotation, changing `Pivot Offset` can also change the `Location` values automatically. This is intentional: FBG compensates the root position so the figure stays visually in place while you reposition the rotation pivot. Without this compensation, the figure would drift in space when the pivot changes under an existing rotation.
+
+![Root pivot offset](../assets/images/pose-root-pivot.avif){ .zoom }
 
 The eye icon next to the pivot controls shows or hides the pivot marker in the viewport, which makes it easier to see exactly where the pivot is placed.

@@ -157,7 +157,7 @@ This is useful when layering a new combo on top of an existing setup. With Exclu
 
 ### Capture Options
 
-Snapshots only the mode flags (Mirror, Arm Inherit Torso, Arm FK/IK, Leg FK/IK, Limits Bypass) into the combo's Stored Options, without touching property values. This runs automatically as part of every Capture Start/End/Mid operation and is also available separately to refresh the mode snapshot without re-capturing values.
+Snapshots only the mode flags (Mirror, Arm Inherit Torso, Arm FK/IK, Leg FK/IK, [Limits Bypass](pose/index.md#limits-bypass-and-reset-pose)) into the combo's Stored Options, without touching property values. This runs automatically as part of every Capture Start/End/Mid operation and is also available separately to refresh the mode snapshot without re-capturing values.
 
 #### Stored Options
 
@@ -169,7 +169,7 @@ What gets stored:
 - Arm Inherit Torso (R and L)
 - Arm FK/IK mode (R and L)
 - Leg FK/IK mode (R and L)
-- Pose Limits Bypass
+- Limits Bypass
 
 The Stored Options row in the expanded combo shows a compact summary of which flags are active in the snapshot. The recapture button (refresh icon) updates the snapshot from current settings without touching any property values.
 
@@ -230,5 +230,3 @@ Both methods use the same data format.
 
 !!! tip "Replace restores the saved figure proportions"
     When loading with Replace, the body proportions from the time of save are applied along with the combos. This ensures the pose looks exactly as it did when saved -- a combo authored on one figure will not look different on a differently proportioned body. Use Append when you want the combos without changing the figure's current proportions.
-
-

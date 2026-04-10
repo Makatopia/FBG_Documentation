@@ -1,99 +1,97 @@
 # Legs
 
-This section covers leg placement and knee behavior in two working modes: direct anatomical angles in FK, and target-based solving in IK. Foot articulation is handled separately in [Feet](feet.md).
+Each leg can be posed in FK or IK mode. Foot articulation is handled separately in [Feet](feet.md).
 
-<!-- TODO: screenshot - the Legs section expanded in the Pose panel -->
-<!-- ![Legs section](../assets/images/pose-legs-overview.avif) -->
 
 ## At a glance
 
-**Leg** - two working modes with shared knee controls available in both:
+**Leg** - two working modes with shared knee controls:
 
-- `FK Mode` poses the leg by hip and knee angles.
+- `FK Mode` poses the leg by joint rotation angles.
 - `IK Mode` poses the leg by foot target (`Foot X/Y/Z`) and knee pole.
 - `Hyperextension` and `Knee Valgus` are available in both modes.
+
+<div class="grid" markdown>
+
+<figure markdown>
+  <figcaption>FK Interface</figcaption>
+  ![Legs FK interface](../assets/images/pose-legs-fk-ui.avif){ .zoom }
+</figure>
+
+<figure markdown>
+  <figcaption>IK Interface</figcaption>
+  ![Legs IK interface](../assets/images/pose-legs-ik-ui.avif){ .zoom }
+</figure>
+
+</div>
 
 ## Leg modes
 
 Each side can use `FK` or `IK` independently.
 
-`FK` is the anatomical approach - you shape the leg from the body outward by setting hip swing and knee bend directly.
-
-`IK` is the placement approach - you set where the foot goes and the leg solves to get there. It also gives you explicit knee direction control through the pole target.
+In `FK`, you set joint angles directly. In `IK`, you set where the foot goes and the leg solves to reach it, with explicit knee direction through the pole target.
 
 ### FK mode
 
-With `FK Mode` enabled, the section exposes direct leg-angle controls:
+With `FK Mode` enabled, the section exposes:
 
-- `Flexion` moves the thigh forward or backward.
-- `Rotation` twists the thigh around its length.
-- `Abduction` moves the thigh away from or toward the midline.
+- `Flexion` swings the leg forward or backward.
+- `Abduction` swings the leg out to the side.
+- `Rotation` rotates the leg around its long axis.
 - `Knee Flexion` bends or straightens the knee.
-- `Hyperextension` pushes the knee slightly past straight near full extension.
-- `Knee Valgus` adjusts the bicondylar angle offset at the knee.
+- `Hyperextension` pushes the knee past straight into a hyperextension.
+- `Knee Valgus` adjusts the inward leg alignment (bicondylar angle).
+
+![Leg FK controls](../assets/images/pose-legs-fk-controls.avif){ .zoom }
 
 ### IK mode
 
 With `FK Mode` disabled, the section switches to a planted-leg IK solve:
 
 - `Foot X`, `Foot Y`, and `Foot Z` move the planted ankle target in figure space.
-- `Pole X`, `Pole Y`, and `Pole Z` move the knee pole target.
-- `Pole Influence` controls how strongly the leg follows that pole target.
-- `Hyperextension` and `Knee Valgus` remain available in IK as well.
-
-The leg IK solver keeps a small hidden bend reserve near full extension. This avoids brittle straight-leg solves and gives more stable planted-leg behavior.
-
-#### Pole control
-
-The knee pole controls tell IK which way the knee should prefer to point.
-
-- `Pole X`, `Pole Y`, and `Pole Z` move the pole target.
+- `Pole X`, `Pole Y`, and `Pole Z` move the knee direction target.
 - `Pole Influence` blends between the default knee direction and the explicit pole target.
-- The eye icon next to the pole controls shows or hides the knee empty marker in the viewport.
+- The eye icon next to the pole controls toggles the knee pole marker in the viewport.
+- `Hyperextension` and `Knee Valgus` remain available.
 
-At low `Pole Influence`, the leg stays closer to FBG's default planted bend direction. At high `Pole Influence`, the explicit pole target takes over more strongly.
+The IK solver keeps a small bend reserve near full extension. If the foot target exceeds stable reach, the leg holds that near-straight state rather than collapsing into a fully straight solve.
 
-<!-- TODO: screenshot - the IK leg controls with foot target, knee pole, and marker toggle visible -->
-<!-- ![Leg IK controls](../assets/images/pose-legs-ik-controls.avif) -->
+![Leg IK controls](../assets/images/pose-legs-ik-controls.avif){ .zoom }
 
 ## Knee Valgus
 
-`Knee Valgus` adjusts the leg's bicondylar angle - the natural inward knee alignment. Positive values increase the inward angle (knock-knee direction), negative values reduce it or push toward varus (bow-legged direction).
+`Knee Valgus` adjusts the leg's bicondylar angle -- the structural angle between the femur and the mechanical axis of the leg. This is not a knee-local bend; it changes the geometry of the whole leg, including the foot position.
 
-The figure already carries a base bicondylar angle from its proportions:
+The figure includes a base angle from proportions, so the slider works as an offset on top of that base.
 
-- female realistic - `10 deg`
-- female ideal - `9 deg`
-- male realistic - `7 deg`
-- male ideal - `6 deg`
+| Preset | Base angle |
+|--------|-----------|
+| Female realistic | 10 deg |
+| Female ideal | 9 deg |
+| Male realistic | 7 deg |
+| Male ideal | 6 deg |
 
-The `Knee Valgus` slider is an offset on top of that base, so the leg already has structural knee alignment even when the slider is at zero.
+**FK behavior:** The bicondylar angle is built into the knee's flexion axis, so the tibia tracks the femur coherently as the knee bends instead of hinging in a flat frontal plane.
 
-Unlike a simple cosmetic offset, `Knee Valgus` is integrated into the leg's geometry in both FK and IK modes.
+**IK behavior:** The bicondylar angle is built into the planted leg reference, so changing it shifts the ankle target even when `Foot X/Y/Z` are unchanged. The IK solve then matches the leg to this updated reference.
 
-**FK behavior:** `Knee Valgus` changes the structural femur-to-knee alignment and the visible frontal knee profile.
-
-**IK behavior:** `Knee Valgus` shapes the planted leg reference, so changing it can move the foot even when `Foot X/Y/Z` are unchanged. Internally, FBG keeps the raw 2-bone solve stable, then applies a post-solve valgus correction so the visible leg preserves the intended anatomical alignment without letting valgus destabilize the pole solve.
-
-<!-- TODO: image - side-by-side comparison showing base leg alignment and the effect of Knee Valgus -->
-<!-- ![Knee Valgus comparison](../assets/images/pose-legs-knee-valgus.avif) -->
+![Knee Valgus](../assets/images/pose-legs-knee-valgus.avif){ .zoom }
 
 ## Knee Hyperextension
 
-`Hyperextension` pushes the knee past straight, giving the leg backward bow near full extension. It changes the leg geometry itself in both FK and IK, not just a rotation layered on top of the shin. It is a controlled extension refinement, not a general bend control.
+`Hyperextension` pushes the knee past straight, giving the leg a backward bow near full extension.
 
-**FK behavior:** near extension, `Hyperextension` rotates the femur past neutral and rebuilds the tibia toward the resulting ankle position. The effect fades out linearly as knee flexion increases and is fully suppressed at `20 deg` of knee flexion.
+**FK behavior:** `Hyperextension` rotates the femur past neutral and rebuilds the tibia toward the resulting ankle position. The effect fades out linearly as knee flexion increases and is fully suppressed at `20 deg` of flexion.
 
-**IK behavior:** near extension, `Hyperextension` adjusts the solved leg while the ankle target stays planted. The knee shifts, the tibia redirects to the same ankle target, and the effective shin length can vary slightly as a result.
+**IK behavior:** `Hyperextension` adjusts the solved leg while the ankle target stays planted. The knee shifts, the tibia redirects to the same ankle target, and the effective shin length can vary slightly as a result. The same `20 deg` fadeout applies.
 
-<!-- TODO: image - comparison showing neutral leg extension and visible Knee Hyperextension -->
-<!-- ![Knee Hyperextension comparison](../assets/images/pose-legs-knee-hyperextension.avif) -->
+![Knee Hyperextension](../assets/images/pose-legs-knee-hyperextension.avif){ .zoom }
 
 ## Shin length
 
-Both `Knee Valgus` and `Hyperextension` can change the effective knee-to-ankle distance, which means the shin segment may be slightly longer or shorter than its nominal rest length depending on the pose. The leg carries its base valgus angle even when the `Knee Valgus` slider is at zero, so shin length variation can appear in ordinary poses. The difference is small, but it is real, and it is worth being aware that it happens.
+`Knee Valgus` and `Hyperextension` can both change the effective knee-to-ankle distance. The leg carries its base valgus angle even when the slider is at zero, so slight shin length variation can appear in ordinary poses.
 
 **Bake To Rig:** FBG compensates by keying shin Y-scale on every baked frame, keeping the baked rig aligned with the source figure.
 
 !!! warning "Export consideration"
-    If you plan to export or retarget a baked Action, check whether your destination workflow supports animated bone scale. If it does not, baked leg playback may not reproduce exactly outside Blender.
+    If you plan to export or retarget a baked Action, check whether your destination workflow supports animated bone scale.
