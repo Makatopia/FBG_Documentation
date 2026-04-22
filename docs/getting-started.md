@@ -4,15 +4,17 @@
 
 Open the FBG panel in the sidebar, pick a preset, and click **Generate Blockout**.
 
-![Generate button](assets/images/getting-started-generate.avif)
+![Generate button](assets/images/getting-started-generate.avif){ .zoom }
 
-FBG generates the figure as a set of separate mesh objects organized into a collection hierarchy in your Outliner. For more on what this means and how the generation pipeline works, see [How FBG Works](how-fbg-works.md#generated-from-scratch).
+FBG generates the figure as a set of separate mesh objects organized into a collection hierarchy in your Outliner. These are normal Blender objects.
+
+While the blockout is active, though, [rebuild-triggering changes](how-fbg-works.md#what-rebuilds-the-blockout) can still replace parts of the generated geometry. For more on what this means and how the generation pipeline works, see [How FBG Works](how-fbg-works.md#generated-from-scratch).
 
 ## The FBG panel
 
 Once a blockout is generated, the panel expands into the active blockout interface.
 
-![FBG panel overview](assets/images/getting-started-active-panel.avif)
+![FBG panel overview](assets/images/getting-started-active-panel.avif){ .zoom }
 
 At the top, a header row shows the blockout name and a set of controls:
 
@@ -33,7 +35,7 @@ A **Finalize** button above these sections closes the blockout for editing. From
 
 ### Finalized blockouts
 
-![Previous Blockouts](assets/images/getting-started-finalized-panel.avif)
+![Previous Blockouts](assets/images/getting-started-finalized-panel.avif){ .zoom }
 
 After finalizing, the panel shows a **Previous Blockouts** list. At the top of this section, two bake operations are available -- **[Bake to Rig](baking.md#bake-to-rig)** and **[Bake for Render](baking.md#bake-for-render)** -- which operate on finalized blockouts that have `Animation Playback` enabled.
 
@@ -51,7 +53,7 @@ You can have multiple finalized blockouts in the same scene, each with independe
 
 Each blockout is generated into its own collection in the Outliner. Inside it, FBG creates the figure objects, optional landmark objects, optional text overlays, and a controller object that stores the blockout's settings and animation data.
 
-These are normal Blender objects. You can inspect them, edit them, or use them like any other scene data. However, while the blockout is active, some changes will rebuild generated objects. If you want to start editing the generated meshes manually, finalize the blockout first.
+These are normal Blender objects. You can inspect them, edit them, or use them like any other scene data. However, while the blockout is active, some changes will [rebuild](how-fbg-works.md#what-rebuilds-the-blockout) generated objects. If you want to start editing the generated meshes manually, finalize the blockout first.
 
 A typical blockout collection looks like this:
 

@@ -94,4 +94,4 @@ The figure includes a base angle from proportions, so the slider works as an off
 **Bake To Rig:** FBG compensates by keying shin Y-scale on every baked frame, keeping the baked rig aligned with the source figure.
 
 !!! warning "Export consideration"
-    If you plan to export or retarget a baked Action, check whether your destination workflow supports animated bone scale.
+    If you plan to export or retarget, check whether your destination workflow supports animated bone scale.

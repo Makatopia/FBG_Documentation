@@ -67,9 +67,6 @@ This explains why a strong `Flexion` reads as a lumbar bend while a strong `Rota
 
 `Spine Segments` opens a per-segment refinement table. Each of the four thoracic and lumbar segments (T6, T12, L3, L5) exposes `Flexion`, `Rotation`, and `Lateral` channels. These are additive on top of the global torso result.
 
-
-<!-- ![Spine Segments](../assets/images/pose-torso-spine-segments-one.avif){ .zoom } -->
-
 ![Spine Segments](../assets/images/pose-torso-spine-segments-two.avif){ .zoom }
 
 ## Neck

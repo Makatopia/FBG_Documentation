@@ -16,7 +16,7 @@ Changing the geometry mode or resolution triggers a [rebuild](how-fbg-works.md#w
 
 `Wireframe` switches all generated objects between wireframe and solid display. This toggles Blender's `Display As` property between `Wire` and `Textured` on every generated mesh.
 
-![Geometry modes comparison](assets/images/getting-started-geometry-modes.avif)
+![Geometry modes comparison](assets/images/getting-started-geometry-modes.avif){ .zoom }
 
 ## Visibility
 
@@ -31,11 +31,13 @@ Toggling a region on or off triggers a targeted [rebuild](how-fbg-works.md#what-
 
 `Spine` enables a dedicated spine visualization object. It is built as a single mesh sampled through vertebral levels from the coccyx to C1, and [updates](how-fbg-works.md#update-modes) with the solved spinal curve as the figure is posed.
 
-![Visibility toggles](assets/images/display-visibility.avif)
+![Visibility toggles](assets/images/display-visibility.avif){ .zoom }
 
 ## Landmarks
 
 FBG provides two independent landmark systems that can be enabled separately or together. They are guide markers for reading the figure -- not a strict anatomy lesson or a guarantee of exact surface anatomy.
+
+![Landmarks](assets/images/display-landmarks.avif){ .zoom }
 
 ### Controls
 
@@ -47,6 +49,8 @@ The Landmarks UI includes:
 - `Show Pose Names` toggles Blender name overlays for Pose landmarks.
 - `Square` and `Cross` control how landmark guides are drawn.
 - The **?** button opens a glossary popup with a short description of each landmark name.
+
+![Controls](assets/images/display-landmark-controls.avif){ .zoom .img-center width=50% }
 
 ### What they represent
 
@@ -78,7 +82,7 @@ Pose landmarks offer two placement modes for the central body landmarks:
 
     For smoother playback, it is also recommended to disable landmarks when animating.
 
-![Static vs Pose landmarks](assets/images/display-landmarks-static-pose.avif)
+![Static vs Pose landmarks](assets/images/display-landmarks-static-pose.avif){ .zoom }
 
 ## Info Overlay
 

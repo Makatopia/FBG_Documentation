@@ -1,177 +1,81 @@
 # Baking
 
-FBG animation lives inside the FBG pose system -- pose properties, combos, and the frame-change handler that evaluates them. Baking transfers that animation out of FBG into standard Blender data that can be used independently.
+Baking samples evaluated FBG animation over the current scene frame range and writes it into standard Blender animation data.
 
-<!-- TODO: screenshot - Bake To Rig popup showing Rest Pose Source and Advanced Tuning -->
-<!-- ![Bake popup](assets/images/baking-popup.avif) -->
+For the underlying runtime model, see [How FBG Works](how-fbg-works.md) and [Animation](animation.md).
 
-## At a glance
+FBG provides two bake operators:
 
-- `Bake To Rig` is the primary bake path. It generates a standard Blender armature with a baked Action from the current FBG animation.
-- The armature is built from the figure's current proportions. If the figure is shaped to match a character model, the rig will match that model's proportions.
-- An optional [Pose Combo preset](pose-combos.md#presets) can define the rig rest pose, useful for matching a specific bind pose like T-pose or A-pose.
-- The baked rig includes deformation helpers (twist bones, pelvis fan bones, shoulder helpers) for better mesh deformation out of the box.
-- The rig is meant for binding and playback -- not as an animation-control rig. It has baked keyframes, no controllers.
-- Rebaking replaces the previous rig. Actions can be preserved and reused across characters that share the same rig recipe.
-- `Bake for Render` is a separate utility that bakes object transforms onto blockout meshes so the figure does not freeze during `Render Animation`.
+- `Bake for Render` writes animation directly onto blockout mesh objects.
+- `Bake to Rig` creates a standard Blender armature and writes animation onto an Action on that armature.
 
-## Bake To Rig
+Both paths sample the same finalized figure animation you see during playback.
 
-### Purpose
+## Shared bake behavior
 
-Bake To Rig takes FBG animation and produces a clean, standard armature with a baked Action. The result has no constraints, no scripted drivers, and no custom mechanisms -- just bones and keyframes.
+- Both operators act on finalized blockouts with `Animation Playback` enabled.
+- If multiple finalized blockouts meet that condition, all are included in the same bake run.
+- The bake range comes from the current scene frame range: `Start` to `End` in the Timeline.
+- Baking samples the evaluated FBG result for each frame.
+- Source controller animation remains intact; baking writes additional output data.
 
-The intended workflow is: shape the FBG figure to match a target character, animate with the FBG pose system, bake the rig, and bind the character mesh to it (for example with `Parent with Automatic Weights`). The character inherits the baked animation through the armature.
+## Bake for Render
 
-The baked rig is not an animation-control rig. There are no custom controllers, IK setups, or constraint mechanisms. It plays back motion -- it does not provide tools to create new motion.
+`Bake for Render` bakes object transforms directly as keyframes onto the generated blockout mesh objects. The result plays back through Blender's standard object animation system.
 
-### Prerequisites
+It produces:
 
-- The blockout must be finalized.
-- `Animation Playback` must be enabled on that finalized blockout.
-- The scene frame range must cover the animation to capture.
+- one Action per object
+- object `location` and `rotation_quaternion` keyframes
 
-### How the rig is shaped
+This operator does not bake mesh deformation. If [Deform Updates](animation.md#deformation-during-playback) is enabled on a target blockout, the bake is cancelled.
 
-The armature skeleton is generated from the figure's current proportions -- height, gender, proportion type, structure. Bone placement comes from the figure's anatomical anchor points, so the rig fits whatever body shape has been configured.
 
-This is why shaping the FBG figure to match the target character first matters. The baked rig will share those proportions, making the bind to the character mesh more accurate.
+## Bake to Rig
 
-### Rest pose
+`Bake to Rig` creates a new Blender armature for the finalized blockout and bakes the evaluated animation into an Action on that armature.
 
-The Bake To Rig popup includes a `Rest Pose Source` selector that controls the rig's bind pose:
+The armature is generated from the blockout's proportions at bake time -- bone positions come from the figure's anatomical anchors, so the rig fits the body shape you have configured. ^^It is not a pre-existing hidden object being revealed; it is created fresh each time you bake^^.
 
-- `Default` -- FBG's neutral default rest pose.
-- `Combo Preset` -- a saved [Pose Combo preset](pose-combos.md#presets) defines the rest pose.
+It produces:
 
-This changes only the rest pose. Proportions still come from the current figure, and the baked animation still covers the scene frame range.
+- one armature object per blockout, built from its current proportions
+- one Action on that armature with pose-bone keyframes sampled from the evaluated result
 
-`Default` gives a consistent base for repeated bakes. `Combo Preset` is useful when the character needs a specific bind pose -- for example, a T-pose or A-pose preset authored to match the target model's bind position.
+The result is a standard Blender armature that can be used in normal armature workflows, including binding and Action reuse.
 
-!!! note "Combo Preset and proportions"
-    A Combo Preset saves figure proportions at the time it was created, but Bake To Rig does not use those saved proportions. It always builds the skeleton from the actual blockout being baked. The saved proportions are only applied when loading the preset through `Replace` in [Pose Combos](pose-combos.md#presets) -- useful for restoring the full figure setup before animating.
+The rig includes [deformation helper bones](#advanced-tuning-bake-popup) for better mesh deformation out of the box.
 
-#### Root transform in Combo Preset mode
+^^It is not an animator-control rig.^^ The bake produces bones and keyframes, but no custom controllers or constraint mechanisms for authoring new motion.
 
-When `Combo Preset` is selected, `Use Preset Root Transform` controls how root channels are handled in the rest pose:
+For re-baking behavior and scene cleanup, see [Rebaking](#re-baking).
 
-- **Off** (default) -- root channels come from the figure at the start frame.
-- **On** -- root channels come from the preset, but only when the preset actually drives root transform properties. Otherwise, falls back to the figure at the start frame.
+![Bake to Rig showcase](assets/images/baking-bake-to-rig-showcase.avif){ .zoom }
 
-This keeps the root as one coherent group and avoids mixed states such as preset rotation with figure position.
+### Rest Pose Source (Bake Popup)
 
-Example: a preset was saved with root location X = 1m. With `Use Preset Root Transform` OFF, the rig origin and rest pose are at the figure's current location. With it ON, the rest pose and origin are at X = 1m even though the generated rig sits at the figure's current location.
+`Bake to Rig` lets you choose how the generated rig's **rest pose** is built.
 
-### Deformation helpers
+- `Default` builds the rig in the figure's default rest pose.
+- `Combo Preset` builds the rig's rest pose from a saved [Pose Combos preset](pose-combos.md#presets).
 
-Beyond the main animation bones, the baked rig includes helpers that improve how a bound mesh deforms. These are most relevant after binding a character.
+In `Combo Preset` mode, `Use Preset` controls the source of the root transform (position, rotation, and pivot offset) at bake time.
 
-#### Twist helpers
+- `Use Preset` *OFF:* taken from the current figure at the start frame.
+- `Use Preset` *ON:* taken from the selected combo preset.
 
-Twist helpers distribute axial rotation along a limb segment. Without them, all twist concentrates at the joint and the mesh pinches and collapses ("candy wrapper" deformation). Each twist bone carries a fraction of its parent's axial twist, increasing from joint to extremity:
+If the preset does not drive root transform channels, FBG falls back to the current figure root transform.
 
-| Chain | Segments | Distribution (default) |
-|-------|----------|----------------------|
-| Upper arm | 3 | 25% / 60% / 85% |
-| Forearm | 3 | 15% / 55% / 80% |
-| Thigh | 2 | 25% / 75% |
-| Shin | 2 | 25% / 75% |
+`Rest Pose Source` affects the generated rig's **rest pose only**. The baked motion is still sampled from the evaluated animated figure, and the rig proportions still come from the current figure at bake time.
 
-Arms use three segments and legs use two because arm twist is typically more visible, especially in forearm pronation/supination.
+![Combo Preset Rest Pose](assets/images/baking-combo-rest-pose.avif){ .zoom }
 
-When using a Combo Preset as rest pose source, twist helpers evaluate as a delta from the selected rest pose. If the preset already contains twist-driving values (for example forearm pronation), the helpers do not stay permanently pre-twisted at rest.
+When `Combo Preset` is used, [preset-level](pose-combos.md#what-a-preset-contains) pose-mode flags that affect rest-pose construction are also restored for that rest pose. This includes options such as FK/IK modes or `Auto Stance Height`. Per-combo Stored Options still behave separately and only apply when those combos are enabled.
 
-#### Pelvis helpers
+!!! note "Action reuse"
+    If you want to reuse Actions between multiple baked rigs, keep the same rest-pose setup. Different rest poses can cause visible mismatches when reusing the same Action.
 
-A fan-helper system centered on each hip socket maintains skin volume during leg movement. These helpers do not drive the leg chain -- they support the skin around it.
-
-Five helpers per side, all parented to the pelvis and originating at the hip socket:
-
-| Bone | Role | Follows |
-|------|------|---------|
-| `hip` | Iliac anchor (upper-lateral pelvis) | Static -- does not follow thigh |
-| `glute` | Posterior glute support | Partial flexion/extension |
-| `glute_lower` | Lower-glute to upper-thigh bridge | Partial flexion/extension |
-| `inguinal` | Front hip crease support | Minimal flexion/extension |
-| `pectineus` | Inner-thigh and groin support | Abduction/adduction + flexion/extension |
-
-Axial leg twist is intentionally ignored -- only motions that affect skin volume are tracked.
-
-#### Shoulder helper
-
-One helper per side supports the armpit area:
-
-- `armpit` -- parented to the clavicle, keeps the axillary region from pinching in raised-arm poses.
-
-#### Deform vs driver bones
-
-The rig separates driver bones (skeleton hierarchy, baked animation) from deform bones (what the mesh is actually skinned to). By default, these are non-deform:
-
-- `root`, `cog` -- control bones
-- `upper_arm`, `forearm` -- replaced by twist helper chains
-- `thigh`, `shin` -- replaced by twist helper chains
-- `toes` -- single-bone fallback (see below)
-
-Twist helpers, pelvis helpers, shoulder helpers, and per-toe chains are deform-enabled by default. Any bone's deform flag can be changed manually after baking.
-
-#### Toes
-
-Two levels of toe detail, both with baked motion:
-
-- Per-toe chains (`hallux`, `toe2` through `toe5`) -- three phalanges each, deform-enabled. For full toe deformation.
-- Single fallback bones (`toes.L` / `toes.R`) -- one bone per side, non-deform by default. Enable deform on these for a simpler setup (shoes, low-poly characters).
-
-### Scale compensation
-
-Bake To Rig keys Y-scale on shin and forearm bones per frame to keep chain alignment stable.
-
-**Shin scale** compensates for effective knee-to-ankle distance changes caused by [Knee Hyperextension](pose/legs.md#knee-hyperextension), [Knee Valgus](pose/legs.md#knee-valgus).
-
-**Forearm scale** compensates for effective elbow-to-wrist distance changes caused by [Elbow Valgus](pose/shoulders-arms.md#elbow-valgus), most visible when Hand Pin is active.
-
-These are normal bake-fidelity mechanisms, not rare corrections.
-
-!!! warning "Animated scale in downstream workflows"
-    If a downstream export or retarget workflow does not preserve animated bone scale, baked arm and leg playback may not reproduce exactly outside Blender.
-
-### Advanced Tuning
-
-The Bake To Rig popup includes an `Advanced Tuning` foldout for adjusting deformation helper behavior:
-
-- **Pelvis Helpers** -- follow fractions for glute, lower glute, inguinal, and pectineus bones
-- **Shoulder Helpers** -- follow fractions for armpit bones
-- **Twist Helpers** -- distribution percentages for all twist chains
-
-Each group has a reset button that restores defaults. These controls are meant for fine-tuning after binding a mesh and checking deformation in real poses -- the defaults are the intended starting point.
-
-<!-- TODO: screenshot - Advanced Tuning expanded in the Bake To Rig popup -->
-<!-- ![Advanced Tuning](assets/images/baking-advanced-tuning.avif) -->
-
-### Rebake and Action handling
-
-Bake To Rig is designed for iteration.
-
-- Each rebake rebuilds the rig from scratch -- new bone placement from current proportions, new keyframes from current animation.
-- If an older baked rig exists in the same blockout collection, it is replaced automatically.
-- Moving the baked rig out of the blockout collection before rebaking preserves it.
-- The baked Action is FBG-managed and replaced on each rebake.
-- Marking the Action with Fake User or unlinking it from the rig before rebaking preserves it.
-
-### Reusing Actions across characters
-
-Bake To Rig supports a reuse workflow:
-
-1. Bake a rig from the blockout.
-2. Move the baked rig out of the blockout collection.
-3. Bind a character mesh to that rig (this becomes the target rig).
-4. Animate the blockout and rebake -- this produces new Actions.
-5. Assign the new Actions to the target rig.
-
-This works when source and target rigs share the same rig recipe -- same `Rest Pose Source` (and same preset when preset-based) and same figure proportions.
-
-**Different rest-pose source** between rigs causes Actions to not line up. **Same preset but different proportions** causes limb arcs, foot placement, and body motion to drift.
-
-The recommended approach: lock proportions first, save one dedicated rest preset if needed, bake the target rig from that setup, and bake all reusable Actions from the same recipe.
+![Rig reference](assets/images/baking-rig-reference.avif){ .zoom .img-center width=50% }
 
 ### Bone reference
 
@@ -183,27 +87,139 @@ The full skeleton uses Blender-standard `.L` / `.R` naming:
 | Spine | `spine`, `spine.001`, `spine.002`, `spine.003` |
 | Neck and head | `neck`, `neck.001`, `head` |
 | Shoulder girdle | `clavicle`, `scapula` |
-| Arm | `upper_arm`, `forearm`, `hand` |
-| Hand | `thumb` (2), `f_index` / `f_middle` / `f_ring` / `f_pinky` (3 each), `palm` |
-| Leg | `thigh`, `shin`, `foot` |
-| Toes | `hallux`, `toe2`, `toe3`, `toe4`, `toe5` (3 each), `toes` (fallback) |
+| Arm | `upper_arm`, `forearm` |
+| Hand and fingers | `hand`, `palm.01-04`, `thumb.01-03`, `index.01-03`, `middle.01-03`, `ring.01-03`, `pinky.01-03` |
+| Leg | `thigh`, `shin` |
+| Feet and toes | `foot`, `toes` (fallback), `hallux.01-02`, `toe2.01-03`, `toe3.01-03`, `toe4.01-03`, `toe5.01-03` |
 | Twist helpers | `upper_arm_twist.01-03`, `forearm_twist.01-03`, `thigh_twist.01-02`, `shin_twist.01-02` |
 | Pelvis helpers | `hip`, `glute`, `glute_lower`, `inguinal`, `pectineus` |
 | Shoulder helper | `armpit` |
 
-<!-- TODO: screenshot - baked rig in edit mode showing the main hierarchy -->
-<!-- ![Baked rig hierarchy](assets/images/baking-rig-hierarchy.avif) -->
 
-## Bake for Render
+### Advanced Tuning (Bake Popup)
 
-`Bake for Render` bakes object transforms onto the blockout meshes so the figure can be rendered as an animation. FBG's frame-change handler is disabled during Blender's `Render Animation` to prevent crashes -- without baking, the rendered frames show the figure frozen in a single pose.
+The baked rig includes additional helper bones beyond the main limb chains. These bones improve deformation in areas where a single rigid chain is not enough -- the pelvis, shoulder, and limb twist regions. The `Advanced Tuning` popup lets you configure how they are baked.
 
-The operator samples the scene frame range, evaluates the blockout animation frame by frame, and keys `location` and `rotation_quaternion` onto each mesh object.
+![Advanced Tuning](assets/images/baking-advanced-tuning.avif){ .zoom .img-center width=40%}
 
-Requirements:
+#### Twist helpers
 
-- The blockout must be finalized.
-- `Animation Playback` must be enabled.
-- `Deform Updates` must be off -- only object transforms are baked, not vertex-level deformation.
+Twist helpers distribute axial rotation along a limb segment. Without them, all twist concentrates at the joint and the mesh pinches and collapses ("candy wrapper" deformation).
 
-Rebaking replaces previous render-bake Actions. Regenerating the blockout removes old baked Actions with it.
+**How they work:** each twist bone is parented to the main limb bone but only carries a fraction of its axial twist. The fractions increase from proximal (near the joint) to distal (toward the extremity), creating a smooth gradient.
+
+| Chain | Segments | Distribution |
+|-------|----------|--------------|
+| Upper arm | `upper_arm_twist.01-03` | 25% / 60% / 85% |
+| Forearm | `forearm_twist.01-03` | 15% / 55% / 80% |
+| Thigh | `thigh_twist.01-02` | 25% / 75% |
+| Shin | `shin_twist.01-02` | 25% / 75% |
+
+
+**Rest-pose behavior with Combo Presets:**
+
+- Twist helpers are evaluated as delta from the selected rig rest pose.
+- If your rest preset already contains twist-driving values (for example foot yaw or forearm pronation), helpers do not stay permanently pre-twisted in rest.
+
+#### Pelvis helpers
+
+The pelvis area is one of the hardest regions to deform well. A single pelvis bone cannot handle the complex volume changes that happen during leg movement -- squatting, sitting, spreading legs, walking. The rig uses a fan bone system centered on each hip socket to maintain volume across these motions.
+
+Five helpers per side, all parented to the pelvis and originating at the hip socket:
+
+<div class="grid" markdown>
+
+=== "`hip`"
+
+    - **Role:** Stable skin anchor for the upper-lateral pelvis region.
+    - **Follows:** Static -- does not follow thigh motion.
+
+=== "`glute`"
+
+    - **Role:** Posterior glute support.
+    - **Follows:** Thigh 10% flexion, 15% extension.
+
+=== "`glute_lower`"
+
+    - **Role:** Lower-glute to upper-thigh bridge.
+    - **Follows:** Thigh 25% flexion, 30% extension.
+
+=== "`inguinal`"
+
+    - **Role:** Front hip crease support.
+    - **Follows:** Thigh 3% flexion, 3% extension.
+
+=== "`pectineus`"
+
+    - **Role:** Inner-thigh and groin support.
+    - **Follows:** Thigh 10% abduction, 10% adduction, 3% flexion, 3% extension.
+
+</div>
+
+#### Shoulder helper
+
+One `armpit` helper bone per side, parented to `clavicle` and positioned from the glenoid toward the axillary fold.
+
+- **Role:** Supports the armpit area in raised-arm poses.
+- **Follows:** Upper arm abduction -5%, adduction 5%, flexion 6%, extension 3%.
+
+### Deform bones
+
+By default, these bones are set to non-deform:
+
+- `root`, `cog` -- control bones, not meant for skinning
+- `upper_arm`, `forearm` -- replaced by their twist helper chains for deformation
+- `thigh`, `shin` -- replaced by their twist helper chains for deformation
+- `toes` -- single-bone toe fallback (see Toes below)
+
+Twist helpers, pelvis helpers, shoulder helpers, and per-toe chains are ^^deform-enabled^^ by default. Any bone's deform flag can be changed manually after baking.
+
+#### Toes
+
+Two levels of toe detail, both with baked motion:
+
+- Per-toe chains (`hallux`, `toe2` through `toe5`) -- deform-enabled chains for full toe deformation.
+- Single fallback bones (`toes.L` / `toes.R`) -- one bone per side, non-deform by default. Enable deform on these for a simpler setup (shoes, low-poly characters).
+
+### Scale compensation
+
+FBG keys scale channels on shin and forearm bones per frame to keep chain alignment stable.
+
+**Shin scale** compensates for effective knee-to-ankle distance changes caused by [Knee Hyperextension](pose/legs.md#knee-hyperextension), [Knee Valgus](pose/legs.md#knee-valgus).
+
+**Forearm scale** compensates for effective elbow-to-wrist distance changes caused by [Elbow Valgus](pose/shoulders-arms.md#elbow-valgus), most visible when Hand Pin is active.
+
+These are normal bake-fidelity mechanisms, not rare corrections.
+
+!!! warning "Animated scale in downstream workflows"
+    If you plan to export or retarget, check whether your destination workflow supports animated bone scale.
+
+
+## Re-baking
+
+Baking is intended for iteration: bake, adjust the source animation, and rebake as needed. Each rebake replaces the previous result; it is not an in-place update.
+
+FBG marks the data it creates (baked rigs and bake-created Actions), so automatic cleanup only targets those marked bake outputs.
+
+### Bake to Rig
+
+Rebaking removes the previous baked rig from the blockout collection, then generates a fresh rig and Action from the current evaluated animation.
+
+- Old Actions are auto-removed only when they are FBG-managed, have no Fake User, and have zero users.
+
+To keep the full previous bake result, move the baked rig out of the blockout collection before rebaking -- this preserves both the rig and its Action.
+
+To keep only the Action, before rebaking do one of the following:
+
+- Assign a Fake User (`F`) to the Action.
+- Unlink the Action from the rig -- cleanup only checks the Action assigned to the rig at removal time.
+- Share the Action with another user -- cleanup skips Actions that still have users after unlinking.
+
+### Bake for Render
+
+Rebaking unlinks the previous render-bake Actions from the generated mesh objects, then writes new Actions from the current evaluated animation.
+
+- Old Actions are auto-removed only when they are FBG-managed, have no Fake User, and have zero users.
+- If you [regenerate or delete](getting-started.md#the-fbg-panel) a blockout, its generated objects are removed; FBG-managed bake Actions linked only to those objects are then cleaned by the same rule.
+
+These cleanup rules apply when using FBG bake, regenerate, and delete operators.

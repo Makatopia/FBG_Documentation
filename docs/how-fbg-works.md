@@ -2,7 +2,7 @@
 
 ## Generated from scratch
 
-FBG does not import a pre-made model. It generates the figure in-place from code -- proportions are converted into dimensions, those dimensions are fed through a skeleton solver, and the solver output drives the mesh generation. Each generated mesh starts from a simple primitive based on the selected geometry mode, then FBG reshapes it to match the body part. Every time you change a proportion, the figure is regenerated from that pipeline.
+FBG does not import a pre-made model. It generates the figure in-place from code -- proportions are converted into dimensions, those dimensions are fed through a skeleton solver, and the solver output drives the mesh generation. Each generated mesh starts from a simple primitive based on the selected geometry mode, then FBG reshapes it to match the body part. Every time you change a proportion, the figure is refreshed from that pipeline.
 
 
 ## The anchor system
@@ -38,18 +38,20 @@ The controller holds the blockout's own copy of all FBG settings and all animati
 
 ### What happens if the controller is deleted
 
-If the controller is deleted while the blockout is **active**, the settings, combos, and animation data stored on that controller are lost. Regenerating the blockout creates a new controller and the blockout falls back to the current scene-level state rather than the deleted controller data.
+Deleting the controller breaks the blockout's live link to its own settings and animation. The Action datablock itself may still remain in the file as an unassigned Action, but it is no longer attached to a controller object.
 
-If the controller is deleted on a **finalized** blockout, reactivation can still restore settings and combos from the collection metadata. Animation keyframes and F-curves are only stored on the controller and cannot be recovered.
+If the controller is deleted while the blockout is **active**, FBG falls back to the current scene settings. Regenerating the controller creates a new controller from that current scene state, not from the deleted controller's settings. The old Action may still exist, but its expected settings context are no longer reliably present on the new controller, so recovery is difficult and often incomplete.
+
+If the controller is deleted on a **finalized** blockout, the situation is better. Finalized blockouts still keep their saved blockout state and combo definitions in collection metadata. Reactivating the blockout recreates the controller and restores that saved state. If the old Action still exists, it can then be reassigned manually to the recreated controller.
 
 !!! warning "Keep the controller intact"
-    While FBG can recover from a missing controller in some cases, unexpected behavior can occur -- such as the blockout reverting to default settings. If you animated the figure then upon removing the controller object, all of your animation data for this blockout will be lost.
+    Deleting the controller is still a destructive mistake. Finalized blockouts have a possible recovery path, but active blockouts usually do not recover cleanly. Keep the controller intact whenever possible.
 
 ## Update types
 
 When you change a property, the blockout responds in one of three ways:
 
-- **Rebuild** -- the affected objects are removed and regenerated from scratch. Triggered by most proportion or display changes.
+- **Rebuild** -- the affected generated geometry is refreshed to match the current definition. Triggered by most proportion or display changes.
 - **Transform update** -- the existing objects are repositioned and rotated without touching the mesh data. Triggered by most pose changes.
 - **Mesh deformation** -- the vertices of specific objects are recalculated to follow a bend or twist. Triggered by some pose changes.
 
@@ -61,7 +63,7 @@ Definition-level changes rebuild the blockout. These are changes that redefine w
 - **Display geometry** -- geometry mode and geometry resolution
 - **Visibility toggles** -- showing or hiding Arms, Legs, Shoulder Girdle, or Spine
 
-During a rebuild, FBG regenerates the affected objects from the current definition. Visibility toggles only rebuild the relevant section -- hiding arms does not regenerate the legs.
+During a rebuild, the affected part of the blockout is refreshed from the current definition. Depending on the change, this can mean rebuilding a section outright or reusing existing objects and replacing their geometry in place. Visibility toggles only rebuild the relevant section -- hiding arms does not regenerate the legs.
 
 The collection hierarchy and the controller object are always preserved across rebuilds.
 
@@ -80,9 +82,6 @@ Some pose properties go beyond simple transforms -- they deform the mesh vertice
 - **Deltoid** -- deforms with arm rotation, twisting to follow shoulder movement
 
 These are not full rebuilds. They are local vertex passes applied to just these objects. But like a rebuild, they do overwrite vertex positions -- any manual edits to these objects will be lost when deformation runs.
-
-<!-- the deferred/immediate/off selector -->
-<!-- ![Mesh deformation](assets/images/how-fbg-works-mesh-deformation.avif) -->
 
 ## Update modes
 
@@ -104,8 +103,7 @@ At lower geometry resolutions, Immediate is usually fine. At higher resolutions,
 
 The gear menu next to `Twist Updates` exposes `Deltoid Pose Twist`, so you can adjust or disable the pose-driven deltoid deformation without turning off forearm deformation. This exists because deltoid twist is more of an optional refinement that you may want to disable for smoother performance, while still keeping the forearm twist active.
 
-<!-- the deferred/immediate/off selector -->
-![Update mode selector](assets/images/how-fbg-works-update-mode-selector.avif)
+![Update mode selector](assets/images/how-fbg-works-update-mode-selector.avif){ .zoom }
 
 ### Deformation during animation playback
 
@@ -113,18 +111,8 @@ When a finalized blockout has `Animation Playback` enabled, the `Deform Updates`
 
 With it enabled, objects like the ribcage, waist, and forearm will deform as the animation plays. With it disabled, they transform as rigid shapes -- faster, but less visually accurate.
 
-## Data management
+## Cleanup
 
-FBG manages its blockout data throughout the lifecycle, not just at creation.
+Normal iteration is designed to clean up after itself. When generated geometry is replaced through the normal rebuild or delete workflow, the addon also removes the data it no longer needs instead of leaving behind unused blockout datablocks.
 
-### During rebuilds
-
-When a property change triggers a rebuild, FBG handles the cleanup internally -- old mesh data is replaced or removed, and new geometry is built to match the updated definition. The collection hierarchy and controller object survive every rebuild. Objects that you have added to the collection yourself are also preserved -- FBG only manages objects it created.
-
-### During deletion
-
-When you delete a blockout through the FBG panel, the addon removes the objects, their underlying mesh data, the collection hierarchy, and any associated animation data. The same applies to bake operations -- re-baking replaces the previous bake result with the new one.
-
-### Manual deletion
-
-This cleanup only works through FBG's own controls. If you manually delete blockout objects through Blender's Outliner, the addon cannot track that, and orphaned data may be left behind.
+This cleanup depends on using the addon's own controls. If blockout objects are deleted manually through Blender's Outliner, that workflow is bypassed, and cleanup or later restoration may no longer work cleanly.

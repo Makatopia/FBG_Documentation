@@ -12,6 +12,3 @@
 4. Enable the add-on by checking the box next to **Figure Blockout Generator**
 
 The FBG panel appears in the sidebar of the 3D Viewport. Press ++n++ to open the sidebar if it is not visible, and look for the **FBG** tab.
-
-<!-- TODO: screenshot - the FBG tab in the sidebar -->
-<!-- ![FBG sidebar tab](assets/images/installation-sidebar.avif) -->

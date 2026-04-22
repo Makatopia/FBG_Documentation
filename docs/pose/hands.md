@@ -69,6 +69,9 @@ The finger controls are built in layers. `Relax` sets the baseline posture, the 
 
 ![Curl shape](../assets/images/pose-hands-curl-shape.avif){ .zoom }
 
+!!! info "Animation note"
+    `Finger Curl` produces linear angular velocity at the default `Curl Shape` of `0`, so F-curve easing works as expected. At other Curl Shape values, different joints reach their ROM limits at different points in the slider range -- the effective angular velocity is not perfectly uniform across joints.
+
 ### DIP Lock
 
 `DIP Lock` keeps the fingertip (DIP) joints flatter while the rest of the finger continues to curl -- positive values blend the DIP angle toward zero. At `1` the DIP stays fully flat regardless of curl, while MCP and PIP curl freely. Partial values give a proportional result.
@@ -139,6 +142,6 @@ The hand controls are designed to layer predictably:
 - Per-finger `Curl`, `Abd`, and `MCP` channels are additive offsets on the corresponding main controls.
 - The thumb is solved separately and is not affected by `Relax`, `Curl Shape`, or `DIP Lock`.
 
+---
 
-!!! info "Animation note"
-    `Finger Curl` produces linear angular velocity at the default `Curl Shape` of `0`, so F-curve easing works as expected. At other Curl Shape values, different joints reach their ROM limits at different points in the slider range - the effective angular velocity is not perfectly uniform across joints.
+![Hand anim](../assets/images/pose-hands-anim.avif){ .zoom }

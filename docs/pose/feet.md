@@ -34,9 +34,17 @@ Support controls describe how the foot meets the ground. In leg IK, they reposit
 
 ### Figure lift
 
-When `Foot Roll` or `Foot Bank` raises the ankle above its rest height, the entire figure lifts to match. This keeps the foot grounded without requiring a manual `Pelvis Z` adjustment for every heel-lift or bank pose.
+When `Foot Roll` or `Foot Bank` raises the ankle above its rest height, the entire figure can lift to match -- keeping the foot grounded without requiring a manual `Pelvis Z` adjustment for every heel-lift or bank pose.
 
-The lift is based on the lower of the two feet. If both feet demand the same height (typical with mirror on), the figure lifts by that full amount. If the feet differ (mirror off, asymmetric pose), the figure only lifts by the lesser amount -- the higher foot is handled by the leg solver in IK, or approximated in FK.
+`Auto Stance Height` controls whether this lift applies.
+
+- **On** (default): the figure lifts to match whenever `Foot Roll` or `Foot Bank` raises the ankle above its rest height.
+- **Off**: `Foot Roll` and `Foot Bank` stay local to the feet and legs.
+
+!!! note "Media note"
+    Some captures on this page were recorded before `Auto Stance Height` was added, so that toggle may not appear in the UI shown here. The foot controls themselves and the support behavior are still current.
+
+When `Auto Stance Height` is on, the lift is based on the lower of the two feet. If both feet demand the same height (typical with mirror on), the figure lifts by that full amount. If the feet differ (mirror off, asymmetric pose), the figure only lifts by the lesser amount -- the higher foot is handled by the leg solver in IK, or approximated in FK.
 
 In practice this means:
 
@@ -44,7 +52,7 @@ In practice this means:
 - **Mirror off, one foot adjusted:** the figure does not lift, because the other foot is still flat. Only the adjusted foot and its leg respond.
 - **Mirror off, both feet adjusted:** the figure lifts by whichever foot demands less height. The leg with more support travel handles the remainder on its own.
 
-<!-- ![Figure lift](../assets/images/pose-feet-figure-lift.avif){ .zoom } -->
+![Figure lift](../assets/images/pose-feet-figure-lift.avif){ .zoom }
 
 ## Ankle orientation
 
@@ -105,5 +113,6 @@ The `Curl` channels refine the group `Toe Curl` result. The `Abd` channels refin
 
 The foldout header includes its own reset button, so you can clear only the per-toe overrides without resetting the whole foot.
 
+---
 
 ![Feet anim](../assets/images/pose-feet-anim.avif){ .zoom }

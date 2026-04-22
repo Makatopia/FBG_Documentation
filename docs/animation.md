@@ -1,158 +1,119 @@
 # Animation
 
-Animation in FBG uses Blender's normal keyframe system, but playback runs through an addon-level evaluation path rather than a native rig. Pose properties and Pose Combo channels can all be keyframed. The figure updates during playback and scrubbing once `Animation Playback` is enabled.
+FBG animation uses Blender's normal keyframe workflow: you keyframe pose values and combo channels from the active panel, and those keys are stored on the blockout's controller object. During playback, the figure updates only when `Animation Playback` is enabled, because FBG reads the keyed values and applies them through [its own pose system](how-fbg-works.md#the-anchor-system) instead of through a Blender armature.
 
-<!-- TODO: screenshot - active blockout header with Animation Playback enabled, timeline/Graph Editor context -->
-<!-- ![Animation overview](assets/images/animation-overview.avif) -->
 
-## At a glance
+## Animation Playback
 
-- Pose properties and Pose Combo channels can be animated.
-- `Animation Playback` must be enabled -- without it, keyed values change in Blender but the figure does not update.
-- Each blockout stores its F-curves on a controller object named `{BlockoutCollectionName}_CTRL`.
-- Realtime Graph Editor preview works on the active blockout while the timeline is idle.
-- `Render Animation` requires a bake step first.
+FBG runs its own per-frame update on every frame change. On each frame, it reads the current evaluated property values, resolves any enabled Pose Combos, builds the effective pose, and applies it to the figure.
+`Animation Playback` is the gate for this per-frame evaluation. The toggle is what connects Blender's keyframe evaluation to the actual blockout update.
 
-## Playback architecture
+For animation to actually move the figure during playback or scrubbing, `Animation Playback` must be enabled. When it is off, Blender still evaluates the keyframes and the property values still change, but FBG does not apply those values to the blockout.
 
-Blender evaluates F-curves during playback and updates the relevant property values on each frame. However, Blender does not reliably call FBG's property update callbacks while the timeline is running. Without extra handling, property values would change but the figure would not move.
+`Animation Playback` is per-blockout, and each blockout holds its own independent animation data.
 
-FBG adds a handler that fires on every frame change. On each frame, it reads the current evaluated property values, resolves any enabled Pose Combos, builds the effective pose, and applies it to the figure.
+- **Active blockout** -- uses the `Animation Playback` toggle in the main active panel header.
+- **Finalized blockouts** -- each finalized blockout has its own `Animation Playback` toggle in the Previous Blockouts list. Turn it on for blockouts you want to see moving; turn it off on blockouts you are not working with to keep playback responsive.
 
-`Animation Playback` is the gate for this per-frame evaluation. When the toggle is off, Blender still evaluates the F-curves -- slider values will update in the panel -- but FBG does not apply those values to the figure. The toggle is what connects Blender's keyframe evaluation to the actual blockout update.
+Multiple finalized blockouts can be animated at the same time. Each one runs independently.
 
-The active blockout and finalized blockouts both use this approach, but they read from different sources:
+## Where keyframes live
 
-- The active blockout reads the current active settings and applies either direct pose transforms or the combo-resolved pose stack.
-- Finalized blockouts read from a per-blockout controller object, rebuild the effective pose from stored figure state plus current animated values, and apply it to the finalized blockout collection.
+Every blockout has a hidden controller object -- a `_CTRL` Empty placed inside the blockout's collection. In normal live animation, all FBG property keyframes land on that controller's Action. There are no keyframes on the generated meshes and no hidden armature behind them.
 
-This evaluation runs in Python, not in Blender's native armature or constraint path. That is the main reason FBG animation is slower than a standard rig, especially in heavier scenes or with many enabled combos.
+In practice:
 
-## What can be animated
+- **Select the controller** when you want to see or edit keyframes and f-curves in the Timeline, Graph Editor, or Dope Sheet. Use the **Controller Visibility** eye icon in the panel header to reveal and select it.
+- **Each blockout's animation is separate.** The controller is per-blockout, and so is its Action. Switching between blockouts changes which animation data you are looking at.
+- **Do not delete the controller.** It is the live host for the blockout's animation. If it is removed, the Action may still remain in the file, but the blockout loses its direct link to it. See [How FBG Works -> Controller object](how-fbg-works.md#controller-object) for what that means on active and finalized blockouts.
 
-**Pose properties** -- all properties in the `Pose` section, including root, torso, pelvis, limbs, hands, and feet -- are the primary animation targets. These move and reposition existing mesh objects without regenerating geometry and evaluate correctly during playback, scrubbing, and Graph Editor preview.
+!!! tip "Graph Editor edits preview live"
+    When you edit an f-curve on the active blockout -- moving a handle, dragging a keyframe -- FBG updates the figure for the current frame immediately, without needing a scrub or a play. Finalized blockouts only update on frame changes, so scrub the timeline if you want to preview f-curve edits on them.
 
-**Pose Combo channels** can all be keyframed: `Blend`, `Influence`, `Enabled`, per-property `Offset` and `Adjust`, and per-property `Start`, `Mid`, and `End` values. All of these evaluate correctly during playback.
+## What you can animate
 
-**Build properties** are not practical animation targets. These include proportions, height, cranial mode, gender, structural ratios, volume values, and display settings. Keyframing them will change values in Blender, but the figure will not update correctly during playback -- the blockout is not rebuilt per frame. Treat these as static setup choices.
+**Practical animation targets** -- these are what FBG is built to evaluate per frame:
 
-## Active and finalized blockouts
+- **Pose properties** -- every property in the [Pose](pose/index.md) sections.
+- **Pose Combo channels** -- `Blend`, `Influence`, `Enabled` on each combo.
+- **Pose Combo per-property refinements** -- `Start`, `Mid`, `End`, `Offset`, `Adjust` on each combo property.
 
-### Active blockout
+Combo `Easing` and `Midpoint` are also keyable, but because they are enum/bool properties they behave as stepped switches rather than as continuous channels. They are rarely animated in practice.
 
-The active blockout uses the `Animation Playback` toggle in the main FBG panel header. When enabled, timeline playback and scrubbing evaluate the active settings and apply either direct pose transforms or the combo-resolved pose stack, depending on whether any combos are active.
+**Not practical to animate live** -- these properties are keyable in Blender, but FBG will not produce animated changes from them during playback:
 
-### Finalized blockouts
+- **Proportions** -- height, gender, proportion type, Structure, Volume. Changing a proportion rebuilds the figure, and rebuilds do not run during playback.
+- **Display** -- geometry mode, geometry resolution, visibility toggles, landmarks. Same reason.
 
-Each finalized blockout has its own `Animation Playback` toggle. Only blockouts with it enabled are updated during playback.
 
-This is useful in scenes with multiple finalized figures. You can keep them all in the file and only pay the runtime cost for the ones currently being animated.
+## Combos during animation
 
-## Controller object
+When a combo is enabled, it controls the pose properties it contains. The combo's resolved value wins over direct keyframes on those same properties for as long as the combo stays enabled.
 
-Every blockout has a controller object named `{BlockoutCollectionName}_CTRL`. This is a hidden Empty that serves as the per-blockout animation host.
+Example: a direct keyframe on the `Pelvis Z` property in the Pose section will be overwritten by an enabled combo that also contains `Pelvis Z`.
 
-It holds:
+To let pose properties direct keyframes take effect, disable the combo -- either toggle it off, or keyframe its `Enabled` channel to off for the frames where you want direct control.
 
-- the blockout's `fbg_settings`, including all pose and combo property values
-- the `Action` and F-curves for all animated FBG properties
+![Combo property claim](assets/images/animation-combo-property-claim.avif){ .zoom }
 
-The controller tracks the effective root transform -- root position, root rotation, and root pivot offset. Selecting it gives you a clean place to animate and inspect F-curves in the Graph Editor, with the object positioned at the blockout's root.
+If you want to keep the combo active and only refine one of its properties, do that inside the combo instead of keyframing the pose property directly. In practice, [Adjust](pose-combos.md#adjust) is the main per-property value-refinement channel for that kind of polish.
 
-Use the controller visibility button in the FBG panel to reveal and select it.
+!!! note "Influence = 0 is not the same as disabled"
+    A combo with Influence = 0 still claims its properties every frame, it just contributes nothing to their values. Direct keys on those properties still will not take effect. Only disabling the combo releases them.
 
-<!-- screenshot - controller selected, Graph Editor showing blockout F-curves -->
-![Controller in Graph Editor](assets/images/animation-controller-graph-editor.avif){width=75%}
+During playback, directly keyframed pose properties update in the panel every frame. Combo-driven properties are different: the figure shows the combo-resolved pose each frame, but the property values in the panel only catch up once playback stops. This is intentional -- rewriting every combo-driven property on every frame would add cost for no visible benefit while the timeline is running.
 
-## Realtime preview
+## Deformation during playback
 
-Timeline playback and scrubbing update both the active blockout and any animation-enabled finalized blockouts.
+FBG uses mesh deformation for body parts that look wrong under rigid rotation -- torso bend (ribcage, waist, spine) and arm twist (forearm, deltoid). See [How FBG Works -> Mesh deformation](how-fbg-works.md#mesh-deformation) for what those deformations are.
 
-The active blockout also has an idle-time Graph Editor preview. While the timeline is not playing and `Animation Playback` is enabled, editing F-curve handles in the Graph Editor updates the active blockout immediately on the current frame -- no need to scrub or press Play to see the result.
+During playback on an active blockout, deformations are gated by the update mode selectors in the Pose section -- `Twist Updates` and `Torso Bend Updates`. Outside of playback these offer `Off`, `Deferred`, and `Immediate` modes, but during playback the selector effectively acts as on/off:
 
-This idle preview applies only to the active blockout. For finalized blockouts, use timeline scrubbing or playback to preview animated changes.
+- **`Off`** -- the deformation is frozen.
+- **`Deferred` or `Immediate`** -- the deformation is updated every frame.
 
-## Pose Combos in animation
+Deferred updates normally wait for a short idle timer before running, but timers do not fire reliably while the timeline is advancing, so FBG bypasses the delay and updates immediately for as long as playback is active.
 
-Pose Combos are well-suited for animating coordinated multi-part motion. A single `Blend` channel can drive many properties together, and `Influence` controls how strongly the combo contributes to the final result.
+During playback on a finalized blockout, deformations are gated by the `Deform Updates` toggle in the Previous Blockouts list:
 
-The key rule for animation is: **an enabled combo claims its properties.** During playback, all properties controlled by enabled combos are reset to their defaults first, then the combo stack is evaluated in list order. If you have direct keyframes on a property that an enabled combo also controls, the combo result takes precedence -- the direct keyframes are overwritten.
+- **On** -- torso bend and arm twist are recalculated every frame. More appealing, more expensive.
+- **Off** -- the current deformed state is frozen and the body parts animate as rigid shapes. Faster, less appealing under motion.
 
-This is the intended design, not a limitation. The combo system exists specifically to drive groups of properties together. If a property you are trying to animate directly is not responding, check whether an enabled combo owns it. The options are:
+Turn `Deform Updates` off if performance is the problem, or lower the blockout geometry resolution.
 
-- disable the combo that owns the property, releasing it for direct animation
-- or drive the motion through the combo -- animate `Blend`, `Influence`, and use per-property refinement channels to shape the result
+!!! warning "Deform Updates overwrites mesh data"
+    When `Deform Updates` is on, FBG rewrites the vertex positions of the torso and arm twist meshes every frame of playback. Any manual vertex edits on those meshes will be overwritten.
 
-For per-property timing and value refinement inside the combo stack, `Offset` shifts when a property's motion happens within the `Blend` range, and `Adjust` adds a normalized correction on top of the interpolated value that can be keyframed for per-property f-curve polish. These let you refine individual properties without stepping outside the combo system.
+## Rendering
 
-Full combo authoring and per-property setup are covered on the [Pose Combos](pose-combos.md) page.
+FBG's per-frame animation does not run during Blender's `Render Animation`. Without baking, the rendered output shows the figure frozen in its current pose on every frame, even though the timeline is advancing. The render pipeline is not a safe place for FBG's per-frame update to run, so it is deliberately gated out.
 
-## Deform Updates
+The fix is to bake before rendering. Two options, depending on what you need:
 
-FBG can update mesh deformations during playback -- torso bend and arm twist -- to improve how the blockout reads while moving. These are visual refinements only and do not affect pose evaluation, combo resolution, or baked output.
+- **[Bake for Render](baking.md#bake-for-render)** -- bakes object transforms onto the blockout meshes themselves. The blockout and its FBG animation data are left intact, so you can keep editing and rebaking.
+- **[Bake to Rig](baking.md#bake-to-rig)** -- produces a standard Blender armature with a baked Action. Use this when you need to hand the animation off to a downstream workflow or bind a character mesh.
 
-For the active blockout, the update mode controls in the Pose section (`Torso Bend Update Mode`, `Twist Update Mode`) apply during posing and playback. For finalized blockouts, the per-blockout `Deform Updates` toggle is the runtime switch -- when off, the current deformed shape stays frozen for the duration of playback.
-
-Deform Updates are also the biggest single performance factor during playback. See [How FBG Works](how-fbg-works.md#mesh-deformation) for a full explanation of the deformation system and update modes.
+Both live in [Baking](baking.md), which covers it in more detail.
 
 ## Performance
 
-FBG animation runs through Python rather than Blender's native evaluation path. Playback is usable and practical for iteration, but it is slower than a native Blender armature.
+FBG's pose evaluation runs in Python, not through Blender's native armature path. That makes live playback slower than a comparable native rig.
 
-### What affects performance: 
+What affects performance:
 
-- Number of animated blockouts: performance scales with count. One or two blockouts run realatively fine, but the more you add, the slower it gets.
-- Mesh [Deform Updates](#deform-updates): this is the single biggest performance factor. Deform updates modify vertex positions on multiple mesh objects every frame. Especially on dense meshes or with multiple animated blockouts, this can have a noticeable impact. If playback feels slow, disabling Deform Updates is the first thing to try.
-- Scene complexity: FBG runs faster on lighter scenes. Heavy scenes with many objects, modifiers, or complex node setups add overhead that compounds with FBG's per-frame updates.
-- Viewport UI: additional Blender UI panels add viewport redraw overhead. For maximum FPS, keep only the views needed for your work.
-- Landmarks and Info Overlay: if visible, these include many text labels and guide markers that are heavier for viewport updates.
+- Number of animated blockouts: turn off `Animation Playback` on blockouts you are not currently working with.
+- Mesh [Deform Updates](#deformation-during-playback): this is the single biggest performance factor. Deform updates modify vertex positions on multiple mesh objects every frame. Especially on dense meshes this can have a noticeable impact. If playback feels slow, disabling Deform Updates is the first thing to try.
+- Scene complexity: heavy scenes with many objects, modifiers, or complex node setups add overhead that compounds with FBG's per-frame updates.
+- Landmarks: if visible, these include many text labels and guide markers that are heavier for viewport updates.
 
-### Combo Performance 
+Combo Performance:
 
 - More combos in the stack = more per-frame work = slower playback.
 - More properties inside each combo = more per-frame work = slower playback.
-- Disabled combos are cheaper than enabled combos, but not free.
+- Disabled combos are cheaper than enabled combos, but not free. 
+
 This path has been profiled and optimized, but combo-heavy setups will still cost more per frame.
 
-### Active and Finalized playback speed: 
+### Active vs finalized playback speed:
 
-You may notice that playback is slightly faster on finalized than on the active blockout. This has been investigated -- the difference is not in FBG's evaluation code (the pose pipeline runs the same way in both cases). The gap comes from Blender's UI redraw: the active blockout has the FBG properties panel open in the sidebar, and Blender redraws those UI elements every frame during playback. Hiding the sidebar `N` or maximizing the 3D viewport `Ctrl+Space`, closes the gap. It is standard Blender viewport/UI overhead.
-
-!!! tip ""
-    Use [Bake To Rig](baking.md) for native Blender playback speed once the animation is final.
-
-## Rendering and baking
-
-!!! warning "Render Animation needs baking"
-    FBG does not evaluate live animation during Blender's `Render Animation` path. The per-frame handlers are intentionally disabled during rendering for stability. Rendering without baking first will produce a figure frozen in a single pose.
-
-### Bake for Render
-
-`Bake for Render` samples every frame in the scene range and bakes the result as object transforms directly onto the generated mesh objects.
-
-Before running it:
-
-- enable `Animation Playback` on the finalized blockouts you want to bake
-- disable `Deform Updates` -- only object transforms are baked, not per-frame vertex deformation
-
-Full documentation is on the [Baking](baking.md) page.
-
-### Bake To Rig
-
-Use [Bake To Rig](baking.md) when you need a standard armature result rather than baked transforms on the generated mesh objects -- for native-speed playback, a conventional Blender rig, or animation transfer to a separate character.
-
-## Keeping animation data
-
-FBG automatically cleans up the Actions it creates when you re-bake or regenerate a blockout. To keep an Action:
-
-- enable the shield icon (Fake User) on it in the Action Editor
-- or unlink the Action from the object before rebaking
-- or move the baked rig out of the blockout collection before regenerating
-
-## Limitations
-
-- Build properties cannot be used as animation channels.
-- `Render Animation` requires baking first.
-- `Bake for Render` does not capture deform-update vertex motion -- disable `Deform Updates` before baking.
-- Enabled Pose Combos override direct animation on the properties they control.
-- NLA is not tested. The animation system is designed around direct Actions and keyframes. Complex NLA setups may produce unexpected results.
+You may notice that playback is slightly faster on finalized blockouts than on the active one. The difference is not in FBG's evaluation code -- it is Blender's UI redraw. When a blockout is active, its full editing UI is open in the N-sidebar: the combo stack, every pose property row, mode toggles, status readouts. Blender redraws all of that on every frame during playback, and the redraw cost compounds with the pose update. Finalized blockouts do not have that panel open, so they skip the redraw cost entirely. Hiding the sidebar (`N`) or maximizing the 3D viewport (`Ctrl+Space`) closes the gap.

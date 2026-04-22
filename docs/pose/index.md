@@ -4,6 +4,8 @@ FBG's posing workflow is entirely **property-driven**. You pose the figure throu
 
 ![Pose section presentation](../assets/images/pose-presentation.avif){ .zoom }
 
+<!-- just an idea but perhaps emphesize more the fact that every single mechanism in my addon had to be made from scratch. This not only will show the scope of this addon, but also it will let me explain an important aspect that its difficult to phrase otherwise, so that i dont under-value my addon. It is the fact that some of the mechanisms might not be 'ideal' in their funcionality, and i am aware of that. However, its not that they are unusable, its just that i had to literally create everything from scratch, so my job was really difficult. When user will read that i am not using blender's native 'tools' for my mechanisms and instead everything is created by me, he will have 'wider perspective' on it. -->
+
 ## Pose Layout
 
 The Pose section is split into central and bilateral regions:
@@ -48,6 +50,13 @@ When Mirror is off, the Pose section exposes additional controls for working wit
 </figure>
 
 </div>
+
+
+## Auto Stance Height
+
+`Auto Stance Height` is a pose-wide support option used mainly with the [Feet](feet.md) controls. When it is enabled, support changes such as `Foot Roll` and `Foot Bank` can lift the whole figure. When it is disabled, that lift does not happen and the support change stays local to the feet and legs.
+
+For the full behavior, especially with Mirror on or off and in asymmetrical stances, see [Feet -> Figure lift](feet.md#figure-lift).
 
 
 ## Limits Bypass and Reset Pose

@@ -142,7 +142,7 @@ The figure includes a base carrying angle from proportions (`11 deg` female, `7 
 **Bake To Rig:** The IK solve can produce slight forearm length variation. FBG compensates by keying forearm Y-scale on every baked frame.
 
 !!! warning "Export consideration"
-    If you plan to export or retarget a baked Action, check whether your destination workflow supports animated bone scale.
+    If you plan to export or retarget, check whether your destination workflow supports animated bone scale.
 
 ## Hand Pin
 

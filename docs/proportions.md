@@ -10,8 +10,7 @@ The system is strongly inspired by Robert Beverly Hale's cranial-unit canon, but
 
 Because every dimension is expressed in CU, changing height rescales the figure uniformly within the current proportion setup. Body regions do not drift out of proportion the way they would with freeform scaling. A taller figure has a larger CU, so everything scales up together.
 
-<!-- TODO: screenshot - the Proportions section in the UI, expanded -->
-<!-- ![Proportions panel](assets/images/proportions-panel.avif) -->
+![Proportions panel](assets/images/proportions-panel.avif){ .zoom .img-center width=50% }
 
 ## How to think about the controls
 
@@ -37,6 +36,8 @@ The preset dropdown sets a starting point for the blockout. Four presets are ava
 Each preset defines a starting figure by setting the initial height, gender, and proportion type. From there, you can refine the blockout with the other proportion controls.
 
 Once you adjust the setup manually, the preset switches to **Custom** to reflect that the figure no longer matches one of the built-in configurations.
+
+![Proportions settings](assets/images/proportions-main-settings.avif){ .zoom }
 
 ## Gender
 
@@ -67,8 +68,7 @@ Structure defines the figure's build. These are not cosmetic changes. Structure 
 
 For example, changing `Leg Segment Ratio` changes how the same squat pose resolves, producing different joint positions and a different motion arc.
 
-<!-- TODO: screenshot - the Structure sub-foldout expanded -->
-<!-- ![Structure controls](assets/images/proportions-structure.avif) -->
+![Structure controls](assets/images/proportions-structure.avif){ .zoom }
 
 The sub-foldout header includes an [update mode selector](how-fbg-works.md#update-modes) and a reset button that returns all values to their defaults.
 
@@ -99,8 +99,7 @@ The sliders appear in the panel in this order:
 
 Volume controls the visual mass of each body region -- how thick or lean each area appears. Unlike Structure, Volume does not change the figure's skeletal layout or joint positions. Think of Structure as the build and Volume as the mass on top of it.
 
-<!-- TODO: screenshot - the Volume sub-foldout expanded -->
-<!-- ![Volume controls](assets/images/proportions-volume.avif) -->
+![Volume controls](assets/images/proportions-volume.avif){ .zoom }
 
 The sub-foldout header includes a reset button that returns all values to their defaults.
 
@@ -111,14 +110,14 @@ The sliders appear in this order:
 | Control | Effect |
 | --- | --- |
 | `Deltoid` | Shoulder cap thickness. |
-| `Upper Arm` | Biceps/triceps area. |
-| `Forearm` | Forearm mass. |
+| `Upper Arm` | Upper arm thickness (biceps and triceps). |
+| `Forearm` | Forearm thickness. |
 | `Fingers` | Finger thickness. |
 | `Neck` | Neck thickness. |
-| `Ribcage` | Thoracic breadth and depth, independent of the shoulder frame. |
+| `Ribcage` | Ribcage volume (breadth and depth). |
 | `Waist` | Waist and abdomen thickness. |
-| `Thigh` | Upper leg mass. |
-| `Calf` | Lower leg mass. |
+| `Thigh` | Upper leg (thigh) thickness. |
+| `Calf` | Lower leg (calf) thickness. |
 
 ---
 
