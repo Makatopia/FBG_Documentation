@@ -2,7 +2,7 @@
 site_name = "FBG"
 site_description = "Documentation for Figure Blockout Generator - a Blender add-on for generating proportioned human blockout figures."
 site_author = "Makatopia"
-#site_url = "https://example.com/"
+site_url = "https://makatopia.github.io/FBG_Documentation/"
 copyright = "Copyright &copy; 2026 Makatopia"
 
 nav = [
@@ -46,8 +46,8 @@ features = [
     "navigation.expand",
     "navigation.footer",
     "navigation.indexes",
-    # "navigation.instant",
-    # "navigation.instant.prefetch",
+    "navigation.instant",
+    "navigation.instant.prefetch",
     "navigation.path",
     # "navigation.sections",
     "navigation.top",
@@ -55,12 +55,5 @@ features = [
     "search.highlight",
 ]
 
-[[project.theme.palette]]
-scheme = "default"
-toggle.icon = "lucide/sun"
-toggle.name = "Switch to dark mode"
-
-[[project.theme.palette]]
+[project.theme.palette]
 scheme = "slate"
-toggle.icon = "lucide/moon"
-toggle.name = "Switch to light mode"
