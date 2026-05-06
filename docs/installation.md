@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Blender 5.0 or later
+- Blender 3.6 or later
 
 ## Install the add-on
 

@@ -1,9 +1,9 @@
 [project]
 site_name = "FBG"
-site_description = "Documentation for Figure Blockout Generator - a Blender add-on for generating proportioned human blockouts."
-site_author = "Maka"
+site_description = "Documentation for Figure Blockout Generator - a Blender add-on for generating proportioned human blockout figures."
+site_author = "Makatopia"
 #site_url = "https://example.com/"
-copyright = "Copyright &copy; 2026 Maka"
+copyright = "Copyright &copy; 2026 Makatopia"
 
 nav = [
   { "Home" = "index.md" },
