@@ -50,7 +50,7 @@ Combo `Easing` and `Midpoint` are also keyable, but because they are enum/bool p
 
 When a combo is enabled, it controls the pose properties it contains. The combo's resolved value wins over direct keyframes on those same properties for as long as the combo stays enabled.
 
-Example: a direct keyframe on the `Pelvis Z` property in the Pose section will be overwritten by an enabled combo that also contains `Pelvis Z`.
+Example: a direct keyframe on the `Hand Z` property in the Pose section will be overwritten by an enabled combo that also contains `Hand Z`.
 
 To let pose properties direct keyframes take effect, disable the combo -- either toggle it off, or keyframe its `Enabled` channel to off for the frames where you want direct control.
 

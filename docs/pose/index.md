@@ -2,9 +2,17 @@
 
 FBG's posing workflow is entirely **property-driven**. You pose the figure through the UI panel rather than by manipulating a rig in the viewport. Each body region has its own set of properties, and every pose change is built from those values.
 
-![Pose section presentation](../assets/images/pose-presentation.avif){ .zoom }
+## About the pose system
 
-<!-- just an idea but perhaps emphesize more the fact that every single mechanism in my addon had to be made from scratch. This not only will show the scope of this addon, but also it will let me explain an important aspect that its difficult to phrase otherwise, so that i dont under-value my addon. It is the fact that some of the mechanisms might not be 'ideal' in their funcionality, and i am aware of that. However, its not that they are unusable, its just that i had to literally create everything from scratch, so my job was really difficult. When user will read that i am not using blender's native 'tools' for my mechanisms and instead everything is created by me, he will have 'wider perspective' on it. -->
+FBG's posing system is self-contained. It is built inside the add-on rather than inherited from Blender's native rigging system.
+
+The pose controls are not wrappers around hidden armature controls, bone constraints, or bone-parented mechanisms. They feed into FBG's own [chain of anatomical anchors](../how-fbg-works.md#the-anchor-system), and the generated objects follow the solved result.
+
+Every posing mechanism is a custom implementation written and designed for FBG. This is how the add-on can pose the figure without using a Blender armature as the editing rig.
+
+Because the pose behavior is solved by FBG itself, it has its own *feel*. Some controls may behave differently from a native Blender rig, especially where the add-on is balancing anatomy on a figure whose proportions can still change.
+
+![Pose section presentation](../assets/images/pose-presentation.avif){ .zoom }
 
 ## Pose Layout
 
@@ -15,27 +23,17 @@ The Pose section is split into central and bilateral regions:
 
 **Central** sections control the figure's central and global pose.
 
-**Bilateral** sections control paired body parts. They work with the **Mirror** setting: when Mirror is on, the **right-side** controls drive both sides. When Mirror is off, left and right become independent.
+**Bilateral** sections control paired body parts and are affected by the Mirror setting described below.
 
 ## Mirror
 
-Mirror is on by default. When enabled, the right-side values drive both sides of the figure for all bilateral sections. The left-side properties still exist but are not read during pose evaluation -- the pose builder constructs the left side directly from the right-side values. Central sections are unaffected by mirror.
+When enabled, the ^^**right-side**^^ property values drive both sides of the figure for all bilateral sections. The left-side properties still exist, but their values are not read during pose evaluation. FBG builds the left side directly from the right-side values. Central sections are unaffected by Mirror.
 
 When you turn Mirror off, left and right become independent. **L** and **R** visibility toggles appear so you can show one side at a time, and bilateral properties are labeled **(R)** and **(L)** to distinguish them.
 
 The first time you turn Mirror off, FBG copies the current right-side values to the left side if the left side has not been edited yet. This keeps the visible pose intact. After that, both sides retain their own values across mirror toggles.
 
 [Pose Combos](../pose-combos.md) follow the same rule. Combo values go through the same pose evaluation as direct property edits, so with Mirror on, only the right-side bilateral values affect the final pose. If a combo was authored with different left and right values, Mirror forces both sides to follow the right.
-
-
-## Symmetry tools
-
-When Mirror is off, the Pose section exposes additional controls for working with left and right independently.
-
-**Flip Pose** swaps left and right pose values across the whole figure. Bilateral properties exchange sides, while directional centerline values -- such as pelvis rotation, torso rotation, neck rotation -- have their sign reversed. The result is a mirrored version of the full pose.
-
-**Copy symmetry** copies pose values from one side to the other as a one-time action. The global copy buttons below the Mirror row copy all bilateral properties at once. Each bilateral section header also has its own copy buttons for copying only that section.
-
 
 <div class="grid" markdown>
 
@@ -51,13 +49,15 @@ When Mirror is off, the Pose section exposes additional controls for working wit
 
 </div>
 
+## Symmetry tools
 
-## Auto Stance Height
+When Mirror is off, the Pose section exposes additional controls for working with left and right independently.
 
-`Auto Stance Height` is a pose-wide support option used mainly with the [Feet](feet.md) controls. When it is enabled, support changes such as `Foot Roll` and `Foot Bank` can lift the whole figure. When it is disabled, that lift does not happen and the support change stays local to the feet and legs.
+**Flip Pose** swaps left and right pose values across the whole figure. Bilateral properties exchange sides, while directional centerline values -- such as pelvis rotation, torso rotation, neck rotation -- have their sign reversed. The result is a mirrored version of the full pose.
 
-For the full behavior, especially with Mirror on or off and in asymmetrical stances, see [Feet -> Figure lift](feet.md#figure-lift).
+**Copy symmetry** copies pose values from one side to the other as a one-time action. The global copy buttons below the Mirror row copy all bilateral properties at once. Each bilateral section header also has its own copy buttons for copying only that section.
 
+![Symmetry tools](../assets/images/pose-symmetry-tools.avif){ .zoom }
 
 ## Limits Bypass and Reset Pose
 
@@ -75,9 +75,11 @@ Some normalized controls, such as toe controls, still drag within their normal `
 
     The main **Reset Pose** button always resets the full pose.
 
----
+## Auto Stance Height
 
-![Symmetry tools](../assets/images/pose-symmetry-tools.avif){ .zoom }
+`Auto Stance Height` is a pose-wide support option used mainly with the [Feet](feet.md) controls. When it is enabled, support changes such as `Foot Roll` and `Foot Bank` can lift the whole figure. When it is disabled, that lift does not happen and the support change stays local to the feet and legs.
+
+For the full behavior, especially with Mirror on or off and in asymmetrical stances, see [Feet -> Figure lift](feet.md#figure-lift).
 
 ## Update modes
 
